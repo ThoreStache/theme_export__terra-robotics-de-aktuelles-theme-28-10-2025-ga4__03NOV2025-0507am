@@ -1,0 +1,157 @@
+{% comment %}
+Terra Robotics moderner Zahlungsmethoden-Abschnitt
+{% endcomment %}
+
+<div class="terra-payment-section page-width" style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="terra-payment-grid">
+    {% for block in section.blocks %}
+      <div class="terra-payment-card">
+        {% if block.settings.image %}
+          <img src="{{ block.settings.image | img_url: 'medium' }}" alt="{{ block.settings.title | escape }}" class="payment-image" loading="lazy" width="120" height="120">
+        {% endif %}
+        <h2>{{ block.settings.title }}</h2>
+        <p>{{ block.settings.description }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Zahlungsmethoden",
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding oben",
+      "default": 60,
+      "min": 0,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding unten",
+      "default": 60,
+      "min": 0,
+      "max": 200,
+      "step": 4
+    }
+  ],
+  "blocks": [
+    {
+      "type": "method",
+      "name": "Zahlungsmethode",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Bild"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel",
+          "default": "Zahlungsart"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Beschreibung",
+          "default": "Kurze Beschreibung der Zahlungsart hier einfügen."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Zahlungsmethoden",
+      "category": "Abschnitte"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+.terra-payment-section {
+  display: flex;
+  justify-content: center;
+}
+
+.terra-payment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.terra-payment-card {
+  background: #f9f9fb; /* sanftes Grau */
+  border-radius: 20px;
+  padding: 28px 20px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  border: 1px solid #e3e6eb;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease, border 0.35s ease;
+  cursor: default;
+}
+
+.terra-payment-card:hover {
+  background: #ffffff;
+  transform: translateY(-8px) scale(1.015);
+  box-shadow: 0 18px 36px rgba(124, 77, 154, 0.12), 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(124, 77, 154, 0.25);
+}
+
+.terra-payment-card:hover .payment-image {
+  transform: scale(1.05); /* Rotation entfernt, nur sanftes Scale für Eleganz */
+}
+
+.terra-payment-card .payment-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin: 0 auto 18px auto;
+  transition: transform 0.35s ease;
+}
+
+.terra-payment-card h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #121212;
+  font-size: 20px; /* Desktop */
+  margin-bottom: 0.6rem;
+}
+
+@media (max-width: 991px) {
+  .terra-payment-card h2 {
+    font-size: 18px; /* Tablet */
+  }
+}
+
+@media (max-width: 767px) {
+  .terra-payment-card h2 {
+    font-size: 17px; /* Mobile */
+  }
+}
+
+
+.terra-payment-card p {
+  font-family: 'Poppins', sans-serif;
+  color: #121212BF;
+  font-size: 16px; /* Default: Desktop */
+  line-height: 1.6;
+}
+
+@media (max-width: 991px) {
+  .terra-payment-card p {
+    font-size: 16px; /* Tablet */
+  }
+}
+
+@media (max-width: 767px) {
+  .terra-payment-card p {
+    font-size: 15px; /* Mobile */
+  }
+}
+</style>

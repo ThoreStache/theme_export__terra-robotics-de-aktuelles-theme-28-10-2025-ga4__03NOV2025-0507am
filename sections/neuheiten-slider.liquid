@@ -1,0 +1,311 @@
+{% schema %}
+{
+  "name": "Neuheiten Slider",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Überschrift",
+      "default": "Neuheiten"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Abstand oben (Padding Top)",
+      "default": 80,
+      "min": 0,
+      "max": 160,
+      "step": 8,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Abstand unten (Padding Bottom)",
+      "default": 80,
+      "min": 0,
+      "max": 160,
+      "step": 8,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Karte",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Hintergrundbild"
+        },
+        {
+          "type": "text",
+          "id": "button1_label",
+          "label": "Button 1 – Text",
+          "default": "Zum Beitrag"
+        },
+        {
+          "type": "url",
+          "id": "button1_link",
+          "label": "Button 1 – Link"
+        },
+        {
+          "type": "color",
+          "id": "button1_color",
+          "label": "Button 1 – Hintergrundfarbe",
+          "default": "#121212"
+        },
+        {
+          "type": "text",
+          "id": "button2_label",
+          "label": "Button 2 – Text",
+          "default": "Mehr erfahren"
+        },
+        {
+          "type": "url",
+          "id": "button2_link",
+          "label": "Button 2 – Link"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 14,
+  "presets": [
+    {
+      "name": "Neuheiten Slider",
+      "category": "Abschnitte"
+    }
+  ]
+}
+{% endschema %}
+
+{% style %}
+.neuheiten-slider {
+  background: none;
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+}
+
+.neuheiten-slider h2 {
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #121212;
+  margin-bottom: 2rem;
+}
+
+@media screen and (min-width: 990px) {
+  .neuheiten-slider h2 {
+    font-size: 40px;
+  }
+}
+
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .neuheiten-slider h2 {
+    font-size: 35px;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .neuheiten-slider h2 {
+    font-size: 30px;
+  }
+}
+
+.card-slider {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: none;
+  scroll-behavior: smooth;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+  padding-bottom: 1.5rem;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
+}
+
+.card-slider:active {
+  cursor: grabbing;
+}
+
+.card-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.slider-card {
+  flex: 0 0 auto;
+  width: 240px;
+  height: 300px;
+  border-radius: 18px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1rem;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+@media screen and (min-width: 990px) {
+  .slider-card {
+    width: 280px;
+    height: 350px;
+  }
+}
+
+.slider-card .btn-wrap {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.slider-card .btn-wrap a {
+  flex: 1 1 0;
+  text-align: center;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.slider-card .btn-wrap:only-child a,
+.slider-card .btn-wrap a:only-child {
+  flex: 0 0 auto;
+  margin: 0 auto;
+}
+
+.slider-card a.btn {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-radius: 30px;
+  white-space: nowrap;
+  display: inline-block;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+@media screen and (min-width: 990px) {
+  .slider-card a.btn {
+    font-size: 15px;
+    padding: 8px 24px;
+  }
+}
+
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .slider-card a.btn {
+    font-size: 14px;
+    padding: 7px 20px;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .slider-card a.btn {
+    font-size: 13px;
+    padding: 6px 18px;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .slider-card {
+    width: 200px;
+    height: 250px;
+  }
+}
+
+.slider-card .btn-1 {
+  background-color: var(--btn1-bg, #121212);
+  color: #fff;
+}
+.slider-card .btn-1:hover {
+  background-color: #2e2e2e;
+}
+
+.slider-card .btn-2 {
+  background-color: transparent;
+  color: #000;
+  border: 2px solid #000;
+  box-sizing: border-box;
+}
+.slider-card .btn-2:hover {
+  background-color: #000;
+  color: #fff;
+}
+{% endstyle %}
+
+<section class="neuheiten-slider">
+  <div class="page-width">
+    <h2>{{ section.settings.section_title }}</h2>
+    <div class="card-slider">
+    {% for block in section.blocks %}
+      {% if forloop.first %}
+        <div style="width: 1.5rem; flex: 0 0 auto;"></div>
+      {% endif %}
+      <div 
+        class="slider-card"
+        style="background-image: url({{ block.settings.image | image_url: width: 600 }});"
+      >
+        <div class="btn-wrap">
+          {% if block.settings.button1_label != blank and block.settings.button1_link != blank %}
+            <a 
+              href="{{ block.settings.button1_link }}" 
+              class="btn btn-1"
+              style="--btn1-bg: {{ block.settings.button1_color }};"
+            >
+              {{ block.settings.button1_label }}
+            </a>
+          {% endif %}
+
+          {% if block.settings.button2_label != blank and block.settings.button2_link != blank %}
+            <a 
+              href="{{ block.settings.button2_link }}" 
+              class="btn btn-2"
+            >
+              {{ block.settings.button2_label }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const slider = document.querySelector('.card-slider');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => {
+      isDown = true;
+      slider.classList.add('active');
+      startX = e.pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+      isDown = false;
+      slider.classList.remove('active');
+    });
+
+    slider.addEventListener('mouseup', () => {
+      isDown = false;
+      slider.classList.remove('active');
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX) * 1.5; // scroll-speed multiplier
+      slider.scrollLeft = scrollLeft - walk;
+    });
+  });
+</script>

@@ -1,0 +1,329 @@
+{% comment %}
+  Section: Category Product Cards (Split, 2-up)
+  Author: Terra Connect GmbH – UX/UI & Shopify Engineering
+{% endcomment %}
+
+<section class="tc-category-cards color-background-1"
+  style="background:#fff; padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="page-width">
+    {% if section.settings.heading != blank %}
+      <h2 class="tc-cards-heading">
+        {{
+          section.settings.heading
+          | replace: 'Gastronomie', '<span class="highlight-purple">Gastronomie</span>'
+          | replace: 'PUDU', '<span class="highlight-purple">PUDU</span>'
+          | replace: 'OrionStar', '<span class="highlight-purple">OrionStar</span>'
+          | replace: 'Gausium', '<span class="highlight-purple">Gausium</span>'
+          | replace: 'Gesundheitswesen', '<span class="highlight-purple">Gesundheitswesen</span>'
+          | replace: 'Einzelhandel', '<span class="highlight-purple">Einzelhandel</span>'
+          | replace: 'Logistik & Industrie', '<span class="highlight-purple">Logistik &amp; Industrie</span>'
+          | replace: 'Schulsegment', '<span class="highlight-purple">Schulsegment</span>'
+          | raw
+        }}
+      </h2>
+    {% endif %}
+
+    <div class="tc-cards-grid">
+      {% for block in section.blocks %}
+        {% assign b = block.settings %}
+
+        <article class="tc-card" {{ block.shopify_attributes }}>
+          <!-- LEFT COLUMN: IMAGE + BUTTON -->
+            <div class="tc-card-left">
+              {%- comment -%} Bild klickbar, wenn Link gesetzt {%- endcomment -%}
+              {% if b.button_link != blank %}
+                <a class="tc-card-media tc-card-media--link"
+                  href="{{ b.button_link }}"
+                  aria-label="{{ b.title | escape }}">
+                  {% if b.image != blank %}
+                    {{ b.image | image_url: width: 1280 | image_tag: loading: 'lazy', class: 'tc-card-img', alt: b.title | escape }}
+                  {% else %}
+                    <div class="tc-card-img placeholder-background"></div>
+                  {% endif %}
+                </a>
+              {% else %}
+                <div class="tc-card-media">
+                  {% if b.image != blank %}
+                    {{ b.image | image_url: width: 1280 | image_tag: loading: 'lazy', class: 'tc-card-img', alt: b.title | escape }}
+                  {% else %}
+                    <div class="tc-card-img placeholder-background"></div>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+              {% if b.button_label != blank and b.button_link != blank %}
+                <a class="tc-btn"
+                  href="{{ b.button_link }}"
+                  style="--btn-bg: {{ section.settings.btn_bg }}; --btn-bg-hover: {{ section.settings.btn_bg_hover }};">
+                  {{ b.button_label }}
+                </a>
+              {% endif %}
+            </div>
+
+          <!-- RIGHT COLUMN: TEXT + BENEFITS -->
+          <div class="tc-card-right">
+            {% if b.title != blank %}
+              <h3 class="tc-card-title">{{ b.title }}</h3>
+            {% endif %}
+
+            {% if b.description != blank %}
+              <div class="tc-card-desc rte">{{ b.description }}</div>
+            {% endif %}
+
+            <ul class="tc-card-benefits">
+              {% for i in (1..4) %}
+                {%- assign icon_key = 'icon_' | append: i -%}
+                {%- assign text_key = 'benefit_' | append: i -%}
+                {%- assign icon = b[icon_key] -%}
+                {%- assign text = b[text_key] -%}
+                {% if icon != blank or text != blank %}
+                  <li class="tc-benefit">
+                    {% if icon != blank %}
+                      {{ icon | image_url: width: 64 | image_tag: loading: 'lazy', class: 'tc-benefit-icon', alt: text | escape }}
+                    {% else %}
+                      <span class="tc-benefit-bullet" aria-hidden="true"></span>
+                    {% endif %}
+                    <span class="tc-benefit-text">{{ text }}</span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+        </article>
+
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ===== Section Layout ===== */
+  .tc-category-cards .page-width { padding-inline: var(--page-width-padding, 1.5rem); }
+  @media (min-width: 750px){ .tc-category-cards .page-width { padding-inline: 5rem; } }
+
+  /* Abschnittsüberschrift: zentriert + mehr Abstand nach unten */
+  .tc-cards-heading{
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 30px;               /* Mobile */
+    line-height: 1.2;
+    margin: 0 0 24px;              /* ↑ mehr Abstand zu den Karten */
+    color: #121212;
+    text-wrap: balance;
+    text-align: center;
+  }
+  @media (min-width: 750px){
+    .tc-cards-heading{
+      font-size: 40px;             /* Tablet & Desktop */
+      margin-bottom: 32px;         /* ↑ mehr Abstand auf größeren Screens */
+    }
+  }
+
+  /* Bild-Link nimmt exakt den Media-Bereich ein und wirkt nicht wie ein normaler Link */
+  .tc-card-media--link{ display:grid; place-items:center; text-decoration:none; color:inherit; }
+
+  /* sanfte Bild-Hover-Reaktion, optional */
+  .tc-card-img{ transition: transform .18s ease; }
+  .tc-card-media--link:hover .tc-card-img{ transform: scale(1.02); }
+
+  /* ===== Karten-Grid: max 2 nebeneinander ===== */
+  .tc-cards-grid{
+    display: grid;
+    grid-template-columns: 1fr;    /* sehr kleine Screens: 1 Karte */
+    gap: clamp(18px, 3vw, 32px);
+  }
+  @media (min-width: 700px){
+    .tc-cards-grid{
+      grid-template-columns: repeat(2, minmax(0, 1fr)); /* Tablet & Desktop: 2 Karten */
+    }
+  }
+
+  .highlight-purple { color: #7c4d9a; }
+
+  /* ===== Card Shell ===== */
+  .tc-card{
+    position: relative;
+    background: #fff;
+    border: 1px solid rgba(18,18,18,.08);
+    border-radius: 16px;
+
+    display: grid;
+    grid-template-columns: 1fr;                 /* mobile: stacked */
+    overflow: hidden;
+
+    /* Permanente Schattierung */
+    box-shadow:
+      0 14px 28px rgba(18,18,18,.08),
+      0 2px 6px rgba(18,18,18,.04);
+
+    transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+    will-change: transform, box-shadow;
+    transform: translateZ(0);
+  }
+  @media (min-width: 990px){
+    .tc-card{ grid-template-columns: 1fr 1.05fr; } /* Split: links Bild, rechts Text */
+  }
+  .tc-card:hover,
+  .tc-card:focus-within{
+    transform: scale(1.015);                     /* sanfte Vergrößerung */
+    box-shadow:
+      0 22px 44px rgba(18,18,18,.12),
+      0 6px 14px rgba(18,18,18,.08);
+    border-color: rgba(18,18,18,.16);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .tc-card{ transition: box-shadow .15s ease, border-color .15s ease; }
+    .tc-card:hover, .tc-card:focus-within{ transform: none; }
+  }
+
+  /* ===== Left Column (Image + Button) ===== */
+  .tc-card-left{
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 18px;
+    padding: 1px;
+    background: #fff;
+  }
+  @media (min-width: 990px){
+    .tc-card-left{ padding: 28px; }
+  }
+  .tc-card-media{
+    display: grid;
+    place-items: center;
+    min-height: 220px;
+  }
+  .tc-card-img{
+    width: 100%;
+    max-width: 460px;
+    max-height: 360px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.06));
+  }
+
+  /* ===== Right Column (Copy + Bullets) ===== */
+  .tc-card-right{ padding: 18px 18px 24px; }
+  @media (min-width: 990px){ .tc-card-right{ padding: 36px 28px; } }
+
+  /* Produkt-Titel: 17 / 20 / 24 px */
+  .tc-card-title{
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-size: 17px;              /* Mobile */
+    margin: 2px 0 10px;
+    color: #121212;
+  }
+  @media (min-width: 700px){ .tc-card-title{ font-size: 20px; } } /* Tablet */
+  @media (min-width: 990px){ .tc-card-title{ font-size: 24px; } } /* Desktop */
+
+  /* Beschreibung: 15 (mobile) / 16 (>=700px) */
+  .tc-card-desc{
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;              /* Mobile */
+    color: #121212BF;
+    line-height: 1.6;
+    margin: 0 0 14px;
+  }
+  @media (min-width: 700px){ .tc-card-desc{ font-size: 16px; } } /* Tablet & Desktop */
+
+  .tc-card-benefits{
+    display: grid;
+    grid-auto-rows: minmax(24px, auto);
+    row-gap: 12px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tc-benefit{
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    column-gap: 12px;
+    align-items: center;
+  }
+  .tc-benefit-icon{ width: 22px; height: 22px; object-fit: contain; }
+  .tc-benefit-bullet{
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(18,18,18,.35);
+    display: inline-block;
+  }
+  .tc-benefit-text{
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    color: #121212;
+  }
+
+  /* ===== Button (global steuerbar) ===== */
+  .tc-btn{
+    --btn-bg: #121212;
+    --btn-bg-hover: #1f1f1f;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 54px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--btn-bg);
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    transition: background-color .18s ease, transform .15s ease;
+    will-change: transform;
+  }
+  .tc-btn:hover{ background: var(--btn-bg-hover); transform: translateY(-1px); }
+  .tc-btn:active{ transform: translateY(0); }
+</style>
+
+
+{% schema %}
+{
+  "name": "Kategorie Produktboxen",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Abschnittsüberschrift", "default": "Entdecken Sie unsere Serviceroboter" },
+
+    { "type": "range", "id": "padding_top", "label": "Padding oben", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 24 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding unten", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 24 },
+
+    { "type": "color", "id": "btn_bg", "label": "Button – Hintergrundfarbe", "default": "#121212" },
+    { "type": "color", "id": "btn_bg_hover", "label": "Button – Hoverfarbe", "default": "#2a2a2a" }
+  ],
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "Produktbox",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Produktbild" },
+        { "type": "text", "id": "title", "label": "Überschrift", "default": "PUDU BellaBot Pro" },
+        { "type": "richtext", "id": "description", "label": "Beschreibung", "default": "<p>Serviceroboter mit digitalem Werbedisplay, ideal für vielseitige Einsätze.</p>" },
+
+        { "type": "image_picker", "id": "icon_1", "label": "Icon 1" },
+        { "type": "text", "id": "benefit_1", "label": "Benefit 1", "default": "Service, Empfang und Marketing" },
+
+        { "type": "image_picker", "id": "icon_2", "label": "Icon 2" },
+        { "type": "text", "id": "benefit_2", "label": "Benefit 2", "default": "Sensible Hindernisvermeidung" },
+
+        { "type": "image_picker", "id": "icon_3", "label": "Icon 3" },
+        { "type": "text", "id": "benefit_3", "label": "Benefit 3", "default": "Verbesserte VSLAM-Technologie" },
+
+        { "type": "image_picker", "id": "icon_4", "label": "Icon 4" },
+        { "type": "text", "id": "benefit_4", "label": "Benefit 4", "default": "Intelligente Essenskennung" },
+
+        { "type": "text", "id": "button_label", "label": "Button-Text", "default": "Zum Produkt!" },
+        { "type": "url", "id": "button_link", "label": "Button-Link" }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Kategorie Produktboxen",
+      "blocks": [
+        { "type": "product_card" },
+        { "type": "product_card" }
+      ]
+    }
+  ]
+}
+{% endschema %}

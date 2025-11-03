@@ -1,0 +1,268 @@
+{% comment %}
+Terra Robotics Preisvergleichs-Abschnitt mit 3 festen Cards:
+- Links: Kauf
+- Mitte: Miete (hervorgehoben, lila Rahmen #7c4d9a)
+- Rechts: Flexmiete
+- Alle Inhalte pflegbar im Theme Editor (Überschrift, Preis, Randinfo, Buttontext, Bulletpoints)
+{% endcomment %}
+
+<div class="terra-pricing-section page-width" style="padding-top: {{ section.settings.padding_top | default: 60 }}px; padding-bottom: {{ section.settings.padding_bottom | default: 60 }}px;">
+  <div class="terra-pricing-grid">
+    {% for block in section.blocks %}
+      <div class="terra-pricing-card {% if block.settings.highlight %}highlight{% endif %}">
+        {% if block.settings.highlight %}
+          <div class="recommendation-badge">Unsere Empfehlung</div>
+        {% endif %}
+        <h3>{{ block.settings.title }}</h3>
+        <p class="price">{{ block.settings.price }}</p>
+        <p class="subtitle">{{ block.settings.subtitle }}</p>
+          <a href="{{ block.settings.button_link }}" class="terra-button {% if block.settings.highlight %}highlight-button{% else %}secondary-button{% endif %}">{{ block.settings.button_text }}</a>
+          <hr class="terra-divider">
+          <ul>
+          {% for i in (1..10) %}
+            {% capture bullet_key %}bullet_{{ i }}{% endcapture %}
+            {% assign bullet = block.settings[bullet_key] %}
+            {% if bullet != blank %}
+              <li>
+                <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/Checkmark.png?v=1751874799" alt="Checkmark" class="checkmark-icon" loading="lazy" width="20" height="20">
+                {{ bullet }}
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Preismodell Vergleich",
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding oben",
+      "default": 60,
+      "min": 0,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding unten",
+      "default": 60,
+      "min": 0,
+      "max": 200,
+      "step": 4
+    }
+  ],
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Karte",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Überschrift" },
+        { "type": "text", "id": "price", "label": "Preis" },
+        { "type": "text", "id": "subtitle", "label": "Randinfo" },
+        { "type": "text", "id": "button_text", "label": "Buttontext", "default": "Beratung anfragen" },
+        { "type": "url", "id": "button_link", "label": "Button Link" },
+        { "type": "checkbox", "id": "highlight", "label": "Mitte hervorheben (lila)" },
+        { "type": "text", "id": "bullet_1", "label": "Bulletpoint 1" },
+        { "type": "text", "id": "bullet_2", "label": "Bulletpoint 2" },
+        { "type": "text", "id": "bullet_3", "label": "Bulletpoint 3" },
+        { "type": "text", "id": "bullet_4", "label": "Bulletpoint 4" },
+        { "type": "text", "id": "bullet_5", "label": "Bulletpoint 5" },
+        { "type": "text", "id": "bullet_6", "label": "Bulletpoint 6" },
+        { "type": "text", "id": "bullet_7", "label": "Bulletpoint 7" },
+        { "type": "text", "id": "bullet_8", "label": "Bulletpoint 8" },
+        { "type": "text", "id": "bullet_9", "label": "Bulletpoint 9" },
+        { "type": "text", "id": "bullet_10", "label": "Bulletpoint 10" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "Preismodell Vergleich", "category": "Abschnitte" }
+  ]
+}
+{% endschema %}
+
+<style>
+.terra-pricing-section {
+  display: flex;
+  justify-content: center;
+}
+
+.terra-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.terra-pricing-card {
+  position: relative;
+  background: #f2f4f7;
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  z-index: 1;
+}
+
+.terra-pricing-card.highlight {
+  z-index: 2;
+  box-shadow: 0 12px 30px rgba(124, 77, 154, 0.15);
+}
+
+.terra-pricing-card.highlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 16px;
+  padding: 2px;
+  background: linear-gradient(135deg, #7c4d9a, #a076c4);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+          mask-composite: exclude;
+}
+
+.terra-pricing-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 16px 32px rgba(0, 0, 0, 0.08),
+    0 10px 15px rgba(0, 0, 0, 0.06);
+}
+  .terra-pricing-card.highlight:hover {
+  box-shadow:
+    0 16px 32px rgba(124, 77, 154, 0.2),
+    0 10px 15px rgba(124, 77, 154, 0.15),
+    0 8px 20px rgba(0, 0, 0, 0.06);
+}
+  .terra-pricing-card.highlight:hover {
+  transform: translateY(-6px) scale(1.03);
+}
+
+.recommendation-badge {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #7c4d9a;
+  color: #fff;
+  font-size: 1.2rem; /* vorher 0.7rem */
+  font-weight: 600;
+  padding: 6px 16px; /* größer */
+  border-radius: 9999px;
+  animation: pulseBadge 2s infinite;
+}
+
+@keyframes pulseBadge {
+  0% { box-shadow: 0 0 0 0 rgba(124, 77, 154, 0.35); }
+  70% { box-shadow: 0 0 0 16px rgba(124, 77, 154, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(124, 77, 154, 0); }
+}
+  
+.terra-pricing-card h3 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.terra-pricing-card .price {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #121212;
+  margin-bottom: 0.4rem;
+}
+
+.terra-pricing-card .subtitle {
+  color: #555;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+  
+.terra-divider {
+  width: 60%;
+  max-width: 200px;
+  height: 1px;
+  background: #d1d1d1;
+  border: none;
+  margin: 1.2rem auto 1.5rem auto;
+  opacity: 0.6;
+}
+  
+.terra-button {
+  display: inline-block;
+  padding: 0.55rem 1.4rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  text-decoration: none;
+  margin: 0 auto 1.2rem auto;
+  font-size: 1.2rem;
+  transition: background 0.3s, color 0.3s, transform 0.3s;
+  text-align: center;
+}
+
+.highlight-button {
+  background: #7c4d9a;
+  color: #fff;
+}
+
+.highlight-button:hover {
+  background: #653b80;
+  transform: scale(1.03);
+}
+
+.secondary-button {
+  background: #ffffff;
+  color: #121212;
+}
+
+.secondary-button:hover {
+  background: #f9f9f9;
+  transform: scale(1.03);
+}
+
+.terra-pricing-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  display: inline-block;
+}
+
+.terra-pricing-card li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1.7rem;
+  font-size: 1.5rem;
+  line-height: 1.5;
+}
+  
+.checkmark-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+  
+.terra-pricing-card .checkmark {
+  color: #27ae60;
+  margin-right: 0.5rem;
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+@media (max-width: 991px) {
+  .terra-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

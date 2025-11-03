@@ -1,0 +1,178 @@
+{% schema %}
+{
+  "name": "Einsatzbereiche",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Überschrift",
+      "default": "Einsatzbereiche"
+    },
+        {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Oberer Abstand (Padding Top)",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Unterer Abstand (Padding Bottom)",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "bereich",
+      "name": "Einsatzbereich",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Bild"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Bezeichnung",
+          "default": "Krankenhäuser"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link-Ziel (Seite oder Produkt)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "Einsatzbereiche",
+      "category": "Abschnitt"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="page-width einsatz-padding" style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <h2 class="einsatz-title">{{ section.settings.heading }}</h2>
+  <div class="einsatz-grid einsatz-count-{{ section.blocks.size }}">
+  {% for block in section.blocks %}
+    <div class="einsatz-item">
+      <p class="einsatz-label">{{ block.settings.title }}</p>
+      {% if block.settings.link != blank and block.settings.image %}
+        <a href="{{ block.settings.link }}" class="einsatz-link" aria-label="{{ block.settings.title | escape }}">
+          <img src="{{ block.settings.image | image_url: width: 300 }}" alt="{{ block.settings.title }}" class="einsatz-image">
+        </a>
+      {% elsif block.settings.image %}
+        <img src="{{ block.settings.image | image_url: width: 300 }}" alt="{{ block.settings.title }}" class="einsatz-image">
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+</div>
+
+<style>
+.einsatz-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 40px;
+  font-weight: bold;
+  color: #121212;
+  text-align: center;
+  margin: 0 0 30px 0;
+}
+
+.einsatz-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.einsatz-item {
+  width: 150px;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.einsatz-label {
+  height: 2.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #121212;
+  margin: 0 0 3.5px 0;
+  line-height: 1.2;
+}
+
+.einsatz-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.einsatz-link,
+.einsatz-image {
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.einsatz-link:hover .einsatz-image,
+.einsatz-image:hover {
+  transform: scale(1.07);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Tablet */
+@media screen and (max-width: 990px) {
+  .einsatz-title {
+    font-size: 30px;
+  }
+
+  .einsatz-label {
+    font-size: 17px;
+    margin-bottom: 20px;
+  }
+
+  .einsatz-image {
+    width: 130px;
+    height: 130px;
+  }
+}
+
+/* Smartphone */
+@media screen and (max-width: 600px) {
+  .einsatz-item {
+    width: 45%;
+  }
+
+  .einsatz-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .einsatz-label {
+    font-size: 19px;
+    margin-bottom: 20px;
+  }
+}
+</style>

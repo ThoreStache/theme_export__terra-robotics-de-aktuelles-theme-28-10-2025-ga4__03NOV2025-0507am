@@ -1,0 +1,304 @@
+{% comment %}
+  Kundenrezensionen-Slider – optimiert für schlankere Karten und sichtbare Bilder
+{% endcomment %}
+
+<style>
+.customer-reviews-carousel {
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+/* NEU: steuerbares Section-Padding */
+#shopify-section-{{ section.id }} .customer-reviews-carousel{
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+}
+/* Mobile kompakter */
+@media (max-width: 749px){
+  #shopify-section-{{ section.id }} .customer-reviews-carousel{
+    padding-top: {{ section.settings.padding_top | times: 0.6 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.6 | round: 0 }}px;
+  }
+}
+
+/* Überschrift über dem Slider */
+#shopify-section-{{ section.id }} .reviews-heading{
+  font-family: "Montserrat", var(--font-heading-family, sans-serif);
+  text-align: center;
+  font-weight: 700;
+  color: #121212;
+  margin: 0 0 24px;
+  line-height: 1.2;
+  font-size: {{ section.settings.heading_size_desktop }}px;
+}
+#shopify-section-{{ section.id }} .reviews-heading .highlight{ color: #7c4d9a; }
+
+@media (max-width: 749px){
+  #shopify-section-{{ section.id }} .reviews-heading{
+    font-size: {{ section.settings.heading_size_mobile }}px;
+  }
+}
+
+#shopify-section-{{ section.id }} .reviews-heading {
+  margin-bottom: {{ section.settings.spacing_below_heading }}px;
+}
+
+.customer-reviews-track {
+  display: flex;
+  gap: 2rem;
+  scroll-behavior: smooth;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2rem;
+  padding-top: 2rem;
+  align-items: stretch;
+}
+.customer-reviews-track::-webkit-scrollbar {
+  display: none;
+}
+
+.customer-review {
+  background: #f9f9f9;
+  border-radius: 24px;
+  padding: 3rem 2rem 1.5rem 2rem;
+  color: #121212;
+  min-width: 280px;
+  max-width: 320px;
+  height: auto;
+  flex: 0 0 auto;
+  position: relative;
+  text-align: center;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  opacity: 0.6;
+  scroll-margin-top: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.customer-review.active {
+  transform: translateY(6px) scale(1.03);
+  opacity: 1;
+  box-shadow: 0 0 0 2px #7c4d9a;
+  z-index: 2;
+}
+
+.customer-review img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: -45px auto 1.2rem auto;
+  border: 3px solid white;
+  background-color: white;
+  position: relative;
+  z-index: 3;
+}
+
+.customer-review .stars {
+  color: #ffcc00;
+  margin-bottom: 1.2rem;
+  font-size: 2.2rem;
+}
+
+.customer-review .author {
+  margin-top: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+  font-size: 1.25rem;
+}
+
+.customer-review .text-content {
+  max-height: 96px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  margin-bottom: 1rem;
+  position: relative;
+  line-height: 1.4;
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  color: #121212BF;
+}
+.customer-review.expanded .text-content {
+  max-height: 1000px;
+}
+.customer-review .toggle-button {
+  background: none;
+  border: none;
+  color: #7c4d9a;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 1.15rem;
+  padding: 0;
+  margin-top: 0.3rem;
+}
+  .customer-review .company {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #555;
+  margin-top: 0.2rem;
+}
+</style>
+
+<div class="customer-reviews-carousel">
+  <div class="page-width">
+    {% if section.settings.heading_text != blank %}
+      <h2 class="reviews-heading">
+        {{ section.settings.heading_text | replace: 'unsere Kunden', '<span class="highlight">unsere Kunden</span>' }}
+      </h2>
+    {% endif %}
+
+    <div class="customer-reviews-track" id="customerReviewsTrack">
+      {% for block in section.blocks %}
+        {% assign plain_text = block.settings.text | strip_html | strip_newlines %}
+        {% assign truncated = plain_text | truncate: 75, '' %}
+        <div class="customer-review{% if forloop.first %} active{% endif %}" data-index="{{ forloop.index0 }}">
+          {% if block.settings.image != blank %}
+            <img src="{{ block.settings.image | img_url: '150x150' }}" alt="{{ block.settings.author }}">
+          {% endif %}
+          <div class="stars">★★★★★</div>
+          <div class="text-content">
+            <span class="full-text" style="display: none;">{{ block.settings.text }}</span>
+            <span class="short-text">{{ truncated }}{% if plain_text.size > 75 %}...{% endif %}</span>
+          </div>
+          {% if plain_text.size > 75 %}<button class="toggle-button">Mehr anzeigen</button>{% endif %}
+          <div class="author">{{ block.settings.author }}</div>
+          {% if block.settings.company != blank %}
+            <div class="company">{{ block.settings.company }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+  const track = document.getElementById("customerReviewsTrack");
+  const originalReviews = Array.from(track.children);
+  const reviews = [];
+
+  // Dupliziere die ersten und letzten 2 Elemente
+  const cloneStart = originalReviews.slice(-2).map(el => el.cloneNode(true));
+  const cloneEnd = originalReviews.slice(0, 2).map(el => el.cloneNode(true));
+
+  cloneStart.forEach(clone => {
+    clone.classList.remove("active");
+    track.insertBefore(clone, track.firstChild);
+  });
+  cloneEnd.forEach(clone => {
+    clone.classList.remove("active");
+    track.appendChild(clone);
+  });
+
+  const allItems = track.querySelectorAll(".customer-review");
+
+  let current = 2; // Startposition nach den geklonten Start-Elementen
+  scrollToReview(current, true);
+
+  function scrollToReview(index, instant = false) {
+    allItems.forEach(r => r.classList.remove("active"));
+    allItems[index].classList.add("active");
+    const scrollTarget = allItems[index].offsetLeft - track.offsetLeft - (track.clientWidth / 2) + (allItems[index].clientWidth / 2);
+    if (instant) {
+      track.scrollLeft = scrollTarget;
+    } else {
+      track.scrollTo({ left: scrollTarget, behavior: "smooth" });
+    }
+  }
+
+  setInterval(() => {
+    current++;
+    if (current >= allItems.length - 2) {
+      current = 2;
+      scrollToReview(current, true);
+    } else {
+      scrollToReview(current);
+    }
+  }, 5000);
+
+  // „Mehr anzeigen“ bleibt gleich
+  allItems.forEach(review => {
+    const btn = review.querySelector(".toggle-button");
+    const shortText = review.querySelector(".short-text");
+    const fullText = review.querySelector(".full-text");
+    if (!btn || !shortText || !fullText) return;
+    btn.addEventListener("click", () => {
+      const expanded = review.classList.toggle("expanded");
+      if (expanded) {
+        shortText.style.display = "none";
+        fullText.style.display = "inline";
+        btn.textContent = "Weniger anzeigen";
+      } else {
+        shortText.style.display = "inline";
+        fullText.style.display = "none";
+        btn.textContent = "Mehr anzeigen";
+      }
+    });
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "Kundenrezensionen Slider",
+  "tag": "section",
+  "class": "section section-customer-reviews",
+  "settings": [
+    { "type": "range", "id": "padding_top", "label": "Padding oben (px)", "min": 0, "max": 200, "step": 2, "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding unten (px)", "min": 0, "max": 200, "step": 2, "default": 40 },
+
+    { "type": "text",  "id": "heading_text",         "label": "Überschrift",                 "default": "Das sagen unsere Kunden" },
+    { "type": "range", "id": "heading_size_desktop", "label": "Überschriftgröße Desktop (px)","min": 16, "max": 80, "step": 1, "default": 40 },
+    { "type": "range", "id": "heading_size_mobile",  "label": "Überschriftgröße Mobile (px)", "min": 12, "max": 48, "step": 1, "default": 30 },
+    { "type": "range", "id": "spacing_below_heading", "label": "Abstand unter Überschrift (px)", "min": 0, "max": 100, "step": 2, "default": 42 },
+  ],
+  
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Rezension",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Profilbild"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Rezensionstext",
+          "default": "Diese Bewertung war sehr hilfreich und das Produkt hervorragend."
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Autor",
+          "default": "Max Mustermann"
+        },
+        {
+  "type": "text",
+  "id": "company",
+  "label": "Firma",
+  "default": "Terra Robotics GmbH"
+}
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "Kundenrezensionen Slider",
+      "category": "Testimonials",
+      "blocks": [
+        { "type": "review" },
+        { "type": "review" },
+        { "type": "review" }
+      ]
+    }
+  ]
+}
+{% endschema %}

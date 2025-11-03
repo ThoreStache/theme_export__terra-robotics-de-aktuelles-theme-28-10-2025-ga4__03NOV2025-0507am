@@ -1,0 +1,497 @@
+<section
+  class="page-width flipbook-container"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+    {%- assign heading_level = section.settings.heading_level | default: 'h2' -%}
+  <{{ heading_level }} class="flipbook-title">
+    {{ section.settings.title }}
+  </{{ heading_level }}>
+  <p class="flipbook-description">{{ section.settings.description }}</p>
+
+  <div class="flipbook-wrapper">
+    <button class="flipbook-arrow left" aria-label="Zurück">&#10094;</button>
+    <div class="flipbook-slider">
+      {% for i in (1..10) %}
+        {% assign page_key = "page_" | append: i %}
+        {% assign page_image = section.settings[page_key] %}
+        {% if page_image != blank %}
+          <div class="flipbook-slide">
+            <img
+              src="{{ page_image | img_url: 'master' }}"
+              alt="Seite {{ i }}"
+              loading="lazy"
+              onclick="openFullscreen(this)"
+            >
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <button class="flipbook-arrow right" aria-label="Weiter">&#10095;</button>
+  </div>
+
+  <!-- ✅ Jetzt innerhalb des Abschnitts -->
+  <div class="flipbook-page-indicator" id="flipbook-page-indicator">1/1</div>
+</section>
+
+  
+<style>
+.flipbook-container {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.flipbook-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #121212;
+  font-size: 40px;
+  margin: 40px 0 20px;
+}
+
+.flipbook-description {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #121212BF;
+  margin-bottom: 2rem;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+  /* Tablet */
+@media (max-width: 989px) {
+  .flipbook-title {
+    font-size: 36px;
+    margin: 40px 0 20px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 749px) {
+  .flipbook-title {
+    font-size: 30px;
+    margin: 30px 0 20px;
+  }
+}
+
+.flipbook-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.flipbook-slider {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  overflow: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  transition: transform 0.3s ease-in-out;
+}
+
+.flipbook-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+.flipbook-slide img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 105vh;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  cursor: zoom-in;
+}
+
+.flipbook-arrow {
+  background: #7c4d9a;
+  color: white;
+  border: none;
+  font-size: 1.8rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.95;
+}
+
+.flipbook-arrow:hover {
+  background: #5e3580;
+}
+
+.flipbook-arrow.left {
+  left: 20px;
+}
+
+.flipbook-arrow.right {
+  right: 20px;
+}
+  
+.flipbook-page-indicator {
+font-family: 'Poppins', sans-serif;
+font-size: 16px;
+margin-top: 10px;
+color: #7c4d9a;
+font-weight: 600;
+text-align: center;
+}
+  
+/* ✅ Mobile Optimierung */
+@media (max-width: 749px) {
+  .flipbook-slide img {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+  }
+
+  .flipbook-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    background: rgba(124, 77, 154, 0.9);
+    top: 45%;
+    transform: translateY(-50%);
+    z-index: 11;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.9;
+  }
+
+  .flipbook-arrow.left {
+    left: 8px;
+  }
+
+  .flipbook-arrow.right {
+    right: 8px;
+  }
+}
+</style>
+
+<style>
+.zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 10, 10, 0.95);
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.zoom-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  cursor: grab;
+  padding: 80px 20px; /* 👈 wichtig: Top-Padding für Scrollbereich */
+  box-sizing: border-box;
+}
+
+.zoom-img {
+  display: block;
+  max-width: none;
+  max-height: none;
+  width: auto;
+  height: auto;
+  transform-origin: center center;
+  user-select: none;
+}
+
+.zoom-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  background: transparent;
+  border: none;
+  font-size: 2.5rem;
+  color: white;
+  cursor: pointer;
+  z-index: 100000;
+  transition: transform 0.2s ease;
+}
+
+.zoom-close:hover {
+  transform: scale(1.2);
+}
+</style>
+
+
+
+<script>
+function openFullscreen(img) {
+  const overlay = document.createElement('div');
+  overlay.classList.add('zoom-overlay');
+
+  const zoomContainer = document.createElement('div');
+  zoomContainer.classList.add('zoom-container');
+
+  const zoomImg = document.createElement('img');
+  zoomImg.src = img.src;
+  zoomImg.classList.add('zoom-img');
+  zoomImg.draggable = false;
+
+  const closeBtn = document.createElement('button');
+  closeBtn.classList.add('zoom-close');
+  closeBtn.innerHTML = '&times;';
+  closeBtn.onclick = () => document.body.removeChild(overlay);
+
+  zoomContainer.appendChild(zoomImg);
+  overlay.appendChild(zoomContainer);
+  overlay.appendChild(closeBtn);
+  document.body.appendChild(overlay);
+
+  let scale = 1;
+  let isDragging = false;
+  let startX, startY, scrollLeft, scrollTop;
+
+  // ✅ Mobile Optimierung: Kein initiales Hereinzoomen
+  if (window.innerWidth <= 749) {
+    zoomImg.style.maxWidth = '100%';
+    zoomImg.style.height = 'auto';
+    zoomImg.style.transform = 'scale(1)';
+    zoomImg.style.transformOrigin = 'center center';
+    scale = 1;
+  }
+
+  // Zoom mit Scrollrad
+  zoomImg.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const rect = zoomImg.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    const percentX = offsetX / rect.width;
+    const percentY = offsetY / rect.height;
+
+    scale += e.deltaY < 0 ? 0.1 : -0.1;
+    scale = Math.min(Math.max(1, scale), 5);
+    zoomImg.style.transformOrigin = `${percentX * 100}% ${percentY * 100}%`;
+    zoomImg.style.transform = `scale(${scale})`;
+  });
+
+  // Ziehen zum Scrollen
+  zoomContainer.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.pageX - zoomContainer.offsetLeft;
+    startY = e.pageY - zoomContainer.offsetTop;
+    scrollLeft = zoomContainer.scrollLeft;
+    scrollTop = zoomContainer.scrollTop;
+    zoomContainer.style.cursor = 'grabbing';
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    zoomContainer.style.cursor = 'grab';
+  });
+
+  zoomContainer.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - zoomContainer.offsetLeft;
+    const y = e.pageY - zoomContainer.offsetTop;
+    zoomContainer.scrollLeft = scrollLeft - (x - startX);
+    zoomContainer.scrollTop = scrollTop - (y - startY);
+  });
+
+  // Klick auf schwarzen Bereich oder Container schließt Vorschau
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target === zoomContainer) {
+      document.body.removeChild(overlay);
+    }
+  });
+
+  // ESC-Taste schließt Vorschau
+  document.addEventListener('keydown', function escHandler(e) {
+    if (e.key === 'Escape') {
+      document.body.removeChild(overlay);
+      document.removeEventListener('keydown', escHandler);
+    }
+  });
+}
+
+// 🟣 Flipbook-Pfeil-Navigation
+  document.addEventListener("DOMContentLoaded", function () {
+    const slider = document.querySelector(".flipbook-slider");
+    const slides = document.querySelectorAll(".flipbook-slide");
+    const prevBtn = document.querySelector(".flipbook-arrow.left");
+    const nextBtn = document.querySelector(".flipbook-arrow.right");
+    const pageIndicator = document.getElementById("flipbook-page-indicator");
+  
+    const totalSlides = slides.length;
+    let currentIndex = 0;
+  
+    function updatePageIndicator() {
+      if (pageIndicator) {
+        pageIndicator.textContent = `${currentIndex + 1}/${totalSlides}`;
+      }
+    }
+  
+    function scrollToSlide(index) {
+      if (!slider || !slides.length) return;
+      const slide = slides[index];
+      if (slide) {
+        slide.scrollIntoView({ behavior: "smooth", inline: "center" });
+        currentIndex = index;
+        updatePageIndicator();
+      }
+    }
+  
+    prevBtn?.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        scrollToSlide(currentIndex - 1);
+      }
+    });
+  
+    nextBtn?.addEventListener("click", () => {
+      if (currentIndex < totalSlides - 1) {
+        scrollToSlide(currentIndex + 1);
+      }
+    });
+  
+    slider?.addEventListener("scroll", () => {
+      const slideWidth = slides[0].offsetWidth + 20;
+      currentIndex = Math.round(slider.scrollLeft / slideWidth);
+      updatePageIndicator();
+    });
+  
+    updatePageIndicator();
+  });
+</script>
+
+
+{% schema %}
+{
+  "name": "Flipbook",
+  "tag": "section",
+  "class": "section-flipbook",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Überschrift",
+      "default": "Unser blätterbares Lookbook"
+    },
+    {
+      "type": "select",
+      "id": "heading_level",
+      "label": "HTML-Tag der Hauptüberschrift",
+      "options": [
+        { "value": "h1", "label": "H1 (nur einmal pro Seite verwenden)" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding oben (px)",
+      "min": 0,
+      "max": 160,
+      "step": 8,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding unten (px)",
+      "min": 0,
+      "max": 160,
+      "step": 8,
+      "default": 40
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Beschreibung",
+      "default": "Blättern Sie bequem durch unsere Broschüre direkt hier im Shop."
+    },
+    {
+      "type": "image_picker",
+      "id": "page_1",
+      "label": "Seite 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "page_2",
+      "label": "Seite 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "page_3",
+      "label": "Seite 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "page_4",
+      "label": "Seite 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "page_5",
+      "label": "Seite 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "page_6",
+      "label": "Seite 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "page_7",
+      "label": "Seite 7"
+    },
+    {
+      "type": "image_picker",
+      "id": "page_8",
+      "label": "Seite 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "page_9",
+      "label": "Seite 9"
+    },
+    {
+      "type": "image_picker",
+      "id": "page_10",
+      "label": "Seite 10"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Flipbook",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

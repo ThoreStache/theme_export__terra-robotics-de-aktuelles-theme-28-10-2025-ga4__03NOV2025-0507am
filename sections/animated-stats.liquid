@@ -1,0 +1,271 @@
+{% comment %}
+  Animated KPIs (Terra Robotics)
+  - Count-up on scroll (IntersectionObserver + requestAnimationFrame)
+  - Responsive grid: 1 col mobile, 2 cols tablet, 2/3/4 cols desktop (Editor-setting)
+  - Rounded rectangular cards, subtle gradient glow, accessible
+{% endcomment %}
+
+<section class="animated-stats section-{{ section.id }}" data-section-id="{{ section.id }}" data-reduce-motion-check="true">
+  <div class="page-width">
+      {% if section.settings.heading != blank %}
+        <h2 class="as-heading">
+          Unsere Erfolge <span class="highlight-purple">in Zahlen</span>
+        </h2>
+      {% endif %}
+    {% if section.settings.subheading != blank %}
+      <p class="as-subheading">{{ section.settings.subheading }}</p>
+    {% endif %}
+
+    <div class="as-grid as-cols-{{ section.settings.columns }}">
+      {% for block in section.blocks %}
+        {% assign icon_url = block.settings.icon | image_url: width: 160 %}
+        <article class="as-card" {{ block.shopify_attributes }}>
+          {% if block.settings.show_icon and block.settings.icon != blank %}
+            <div class="as-icon" aria-hidden="true" style="background-image:url({{ icon_url }});"></div>
+          {% elsif block.settings.emoji != blank %}
+            <div class="as-emoji" aria-hidden="true">{{ block.settings.emoji }}</div>
+          {% endif %}
+
+          <div class="as-value-wrap">
+            {% assign target = block.settings.target | default: 0 %}
+            <span
+              class="as-value"
+              data-target="{{ target }}"
+              data-duration="{{ block.settings.duration | default: 1600 }}"
+              data-decimals="{{ block.settings.decimals | default: 0 }}"
+              data-prefix="{{ block.settings.prefix | escape }}"
+              data-suffix="{{ block.settings.suffix | escape }}"
+              data-locale="{{ section.settings.locale | default: request.locale.iso_code }}"
+              aria-label="{{ block.settings.label | escape }}">
+              {{ block.settings.prefix }}{{ target | divided_by: 1.0 | round: block.settings.decimals }}{{ block.settings.suffix }}
+            </span>
+          </div>
+
+          {% if block.settings.label != blank %}
+            <h3 class="as-label">{{ block.settings.label }}</h3>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% style %}
+.section-{{ section.id }}{
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+  --as-card-bg: {{ section.settings.card_bg | default: '#ffffff' }};
+  --as-radius: 24px;
+  --as-shadow: 0 12px 30px rgba(0,0,0,.08);
+  --as-accent: {{ section.settings.accent | default: '#7c4d9a' }};
+  --as-muted: #6b7280;
+}
+
+.section-{{ section.id }} .as-heading{
+  text-align:center; font-family: Montserrat, sans-serif; font-weight:800; margin:0 0 .25rem;
+  font-size: clamp(28px, 3.2vw, 42px); color:#121212;
+}
+.section-{{ section.id }} .as-subheading{
+  text-align:center; margin:0 auto 4.25rem; max-width:70ch; color:var(--as-muted); font-family:Poppins, sans-serif;
+}
+
+/* GRID */
+/* Mobile: 2 Spalten */
+.section-{{ section.id }} .as-grid{
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* immer 2 nebeneinander */
+}
+
+/* Tablet: bleibt wie bisher */
+@media (min-width: 600px){
+  .section-{{ section.id }} .as-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Desktop: Spalten gemäß Setting bleiben unberührt */
+@media (min-width: 992px){
+  .section-{{ section.id }} .as-cols-2{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .section-{{ section.id }} .as-cols-3{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .section-{{ section.id }} .as-cols-4{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+}
+
+/* CARD */
+.section-{{ section.id }} .as-card{
+  position:relative; overflow:hidden; border-radius:var(--as-radius);
+  background: radial-gradient(120% 120% at 0% 0%, color-mix(in oklab, var(--as-accent) 16%, white) 0%, var(--as-card-bg) 40%), var(--as-card-bg);
+  box-shadow:var(--as-shadow);
+  padding:28px 24px;
+  display:flex; flex-direction:column; justify-content:center; align-items:flex-start;
+  min-height:140px; /* rechteckig & gleichmäßig */
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.section-{{ section.id }} .as-card::after{
+  content:''; position:absolute; inset:auto -20% -40% auto; width:160px; height:160px; border-radius:50%;
+  background: color-mix(in oklab, var(--as-accent) 18%, transparent);
+  filter: blur(30px); opacity:.35; pointer-events:none;
+}
+.section-{{ section.id }} .as-card:hover{ transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,.12); }
+
+.section-{{ section.id }} .as-icon{ width:44px; height:44px; border-radius:12px; background-size:cover; background-position:center; margin-bottom:10px; }
+.section-{{ section.id }} .as-emoji{ font-size:34px; line-height:1; margin-bottom:12px; }
+
+.section-{{ section.id }} .as-value-wrap{ display:flex; align-items:baseline; gap:8px; }
+.section-{{ section.id }} .as-value{
+  font-family: Montserrat, sans-serif; font-weight:800; letter-spacing:-.02em; color:#121212;
+  font-size: clamp(28px, 5vw, 54px);
+  text-shadow: 0 1px 0 rgba(255,255,255,.6);
+}
+.section-{{ section.id }} .as-label{
+  margin:.4rem 0 0; color:#111; font: 600 14px/1.4 Poppins, sans-serif; opacity:.85;
+}
+
+/* First-paint micro animation */
+@media (prefers-reduced-motion: no-preference){
+  .section-{{ section.id }} .as-card{ animation: as-pop .5s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes as-pop{ from{ transform: translateY(8px); opacity:0 } to{ transform: translateY(0); opacity:1 } }
+}
+
+/* Überschrift – Schriftart & Größe */
+.section-{{ section.id }} .as-heading {
+  font-family: Montserrat, sans-serif;
+}
+
+/* Desktop */
+@media (min-width: 992px) {
+  .section-{{ section.id }} .as-heading {
+    font-size: 40px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 600px) and (max-width: 991px) {
+  .section-{{ section.id }} .as-heading {
+    font-size: 40px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 599px) {
+  .section-{{ section.id }} .as-heading {
+    font-size: 30px;
+  }
+}
+{% endstyle %}
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const root = document.querySelector('.section-{{ section.id }}');
+  if (!root) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    || root.dataset.reduceMotionCheck === 'false';
+
+  const counters = [...root.querySelectorAll('.as-value')];
+  let started = false;
+
+  const formatNumber = (value, decimals, locale) => {
+    try {
+      return new Intl.NumberFormat(locale || undefined, {
+        minimumFractionDigits: decimals, maximumFractionDigits: decimals
+      }).format(value);
+    } catch(e){ return Number(value).toFixed(decimals); }
+  };
+
+  const animate = (el) => {
+    const duration = parseInt(el.dataset.duration || '1600', 10);
+    const decimals = parseInt(el.dataset.decimals || '0', 10);
+    const target = parseFloat(el.dataset.target || '0');
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const locale = el.dataset.locale || undefined;
+
+    if (reduceMotion || duration <= 0){
+      el.textContent = prefix + formatNumber(target, decimals, locale) + suffix;
+      return;
+    }
+    const start = performance.now();
+    const diff = target;
+
+    const ease = (t) => 1 - Math.pow(1 - t, 3); // easeOutCubic
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / duration);
+      const current = diff * ease(p);
+      el.textContent = prefix + formatNumber(current, decimals, locale) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = prefix + formatNumber(target, decimals, locale) + suffix;
+    };
+    requestAnimationFrame(tick);
+  };
+
+  const startCounters = () => {
+    if (started) return;
+    started = true;
+    counters.forEach(animate);
+  };
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting){ startCounters(); io.disconnect(); }
+    });
+  }, { rootMargin: '0px 0px -20% 0px', threshold: 0.2 });
+
+  io.observe(root);
+});
+</script>
+
+{% schema %}
+{
+  "name": "Animated KPIs",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Our Impact in Numbers" },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "Real-time company stats that speak for themselves." },
+
+    { "type": "select", "id": "columns", "label": "Columns (desktop)",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "4"
+    },
+
+    { "type": "color", "id": "accent", "label": "Accent color", "default": "#7c4d9a" },
+    { "type": "color", "id": "card_bg", "label": "Card background", "default": "#ffffff" },
+    { "type": "text", "id": "locale", "label": "Number locale (e.g. en-US, de-DE)", "default": "en-US" },
+    { "type": "range", "id": "padding_top", "label": "Padding top", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 60 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 60 }
+  ],
+  "blocks": [
+    {
+      "type": "kpi",
+      "name": "Counter",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Revenue" },
+        { "type": "number", "id": "target", "label": "Target value", "default": 2500000 },
+        { "type": "range", "id": "decimals", "label": "Decimals", "min": 0, "max": 2, "step": 1, "default": 0 },
+        { "type": "text", "id": "prefix", "label": "Prefix (e.g. $, €)", "default": "$" },
+        { "type": "text", "id": "suffix", "label": "Suffix (e.g. +, m²)", "default": "+" },
+        { "type": "range", "id": "duration", "label": "Animation duration (ms)", "min": 400, "max": 4000, "step": 100, "default": 1600 },
+        { "type": "checkbox", "id": "show_icon", "label": "Show icon image", "default": false },
+        { "type": "image_picker", "id": "icon", "label": "Icon (square recommended)" },
+        { "type": "text", "id": "emoji", "label": "Emoji (alternative to icon)" }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Animated KPIs",
+      "blocks": [
+        { "type": "kpi", "settings": { "label": "Revenue", "prefix": "€", "target": 3000000 } },
+        { "type": "kpi", "settings": { "label": "Customers", "suffix": "+", "target": 1200 } },
+        { "type": "kpi", "settings": { "label": "Countries", "suffix": "+", "target": 18 } },
+        { "type": "kpi", "settings": { "label": "Partners worldwide", "suffix": "+", "target": 35 } }
+      ]
+    }
+  ]
+}
+{% endschema %}

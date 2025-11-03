@@ -1,0 +1,459 @@
+{% comment %}
+  Video-Slider mit Pop-up, endlosem Loop, zentrierter Anzeige & vergrößerten Karten
+{% endcomment %}
+
+<style>
+.video-slider-section {
+  padding: 4rem 0 2rem;
+  background-color: #ffffff;
+  position: relative;
+}
+
+/* Dynamische Abstände */
+#shopify-section-{{ section.id }} .video-slider-section {
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+}
+@media (max-width: 749px) {
+  #shopify-section-{{ section.id }} .video-slider-section {
+    padding-top: {{ section.settings.padding_top | times: 0.6 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.6 | round: 0 }}px;
+  }
+}
+
+.video-slider-section .slider-heading {
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 2rem;
+}
+.video-slider-track-wrapper {
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.video-slider-track-wrapper::-webkit-scrollbar {
+  display: none;
+}
+.video-slider-track {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem 1rem;
+}
+.video-card-wrapper {
+  flex: 0 0 400px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.video-card-wrapper img.thumbnail {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.video-info {
+  margin-top: 1rem;
+}
+
+.video-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #121212;
+  margin-bottom: 0.3rem;
+}
+
+.video-description {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #121212BF;
+  padding: 0 1rem;
+}
+.video-slider-dots {
+  text-align: center;
+  margin-top: 1rem;
+}
+.video-slider-dots span {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #ccc;
+  border-radius: 50%;
+  margin: 0 4px; /* Etwas enger als vorher */
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.video-slider-dots span.active {
+  background: #7c4d9a;
+}
+.video-popup-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.video-popup-content {
+  background: #fff;
+  padding: 0;
+  border-radius: 12px;
+  max-width: 1200px;
+  width: 90%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+.video-card-wrapper img.thumbnail {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.video-thumb {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+  border-radius: 0;
+}
+.video-thumb .thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .3s ease, box-shadow .3s ease, opacity .2s ease;
+}
+.video-card-wrapper .hover-player,
+.video-card-wrapper .hover-player iframe,
+.video-card-wrapper .hover-player video {
+  pointer-events: none;
+}
+.video-card-wrapper .hover-player { display: none; }
+.video-card-wrapper.is-hovering .hover-player { display: block; }
+.video-card-wrapper.is-hovering .thumbnail {
+  opacity: 0.01; /* fast unsichtbar, aber klickbar */
+  pointer-events: auto; /* Klicks bleiben möglich */
+}
+
+.video-card-wrapper img.thumbnail:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.video-popup-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  border-radius: 0;
+}
+.video-popup-close {
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffffff;
+  border: none;
+  background: none;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+/* Überschrift im Video-Slider korrekt nach Device skalieren */
+.video-slider-section .slider-heading.h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #121212;
+  line-height: 1.2;
+  margin: 0 0 30px;      /* wie in Desktop/Tablet: 30px */
+  font-size: 40px;       /* Desktop & Tablet */
+}
+
+/* Mobile ≤ 749px: 30px und 20px Abstand */
+@media screen and (max-width: 749px) {
+  .video-slider-section .slider-heading.h2 {
+    font-size: 30px;
+    margin-bottom: 20px;
+  }
+}
+  @media screen and (max-width: 768px) {
+  .video-card-wrapper {
+    flex: 0 0 100%; /* Max. 100 % der Breite auf kleinen Geräten */
+    margin: 0 auto; /* Zentriert die Karte */
+  }
+}
+</style>
+
+
+<div class="video-slider-section">
+  <h2 class="slider-heading {{ section.settings.heading_size }}">{{ section.settings.heading }}</h2>
+
+  <div class="video-slider-track-wrapper">
+    <div class="video-slider-track" id="videoSliderTrack">
+      {% for block in section.blocks %}
+       <div class="video-card-wrapper" data-index="{{ forloop.index0 }}">
+  <div class="video-thumb">
+    <img 
+      src="{{ block.settings.thumbnail | img_url: '600x600' }}" 
+      alt="{{ block.settings.title }}" 
+      class="thumbnail" 
+      data-video="{{ block.settings.video_url }}">
+    <div class="hover-player" aria-hidden="true"></div>
+  </div>
+  <div class="video-info">
+    <h4 class="video-title">{{ block.settings.title }}</h4>
+    <p class="video-description">{{ block.settings.description }}</p>
+  </div>
+</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="video-slider-dots" id="videoSliderDots">
+    {% for block in section.blocks %}
+      <span class="dot{% if forloop.first %} active{% endif %}" data-dot-index="{{ forloop.index0 }}"></span>
+    {% endfor %}
+  </div>
+</div>
+
+<div id="videoPopup" class="video-popup-overlay" style="display: none;">
+  <div class="video-popup-content">
+    <button class="video-popup-close" onclick="closeVideoPopup()">×</button>
+    <div id="videoPopupContentInner" style="width: 100%; height: 100%;"></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const dots  = document.querySelectorAll("#videoSliderDots .dot");
+  const cards = document.querySelectorAll(".video-card-wrapper");
+  const track = document.getElementById("videoSliderTrack");
+
+  let current = 0;
+  let interval;
+
+  // ---------- Slider-Navigation ----------
+  const scrollToCard = (index) => {
+    const wrapper = document.querySelector(".video-slider-track-wrapper");
+    const card = cards[index];
+    const wrapperWidth = wrapper.offsetWidth;
+    const cardWidth = card.offsetWidth;
+
+    const cardOffsetLeft = card.offsetLeft;
+    const scrollX = cardOffsetLeft - (wrapperWidth / 2) + (cardWidth / 2);
+
+    wrapper.scrollTo({ left: scrollX, behavior: "smooth" });
+
+    dots.forEach(dot => dot.classList.remove("active"));
+    if (dots[index]) dots[index].classList.add("active");
+  };
+
+  const startAutoScroll = () => {
+    interval = setInterval(() => {
+      current = (current + 1) % cards.length;
+      scrollToCard(current);
+    }, 5000);
+  };
+  const stopAutoScroll = () => clearInterval(interval);
+
+  dots.forEach(dot => {
+    dot.addEventListener("click", () => {
+      stopAutoScroll();
+      current = parseInt(dot.dataset.dotIndex);
+      scrollToCard(current);
+    });
+  });
+
+  track.addEventListener("mousedown", stopAutoScroll);
+  track.addEventListener("pointerdown", stopAutoScroll); // Touchpad/Pointer
+
+  scrollToCard(0);
+  if (window.innerWidth > 768) startAutoScroll();
+
+  // ---------- Pop-up Öffnen (auf .video-thumb klicken) ----------
+  cards.forEach(card => {
+    const thumbWrap = card.querySelector(".video-thumb");
+    const img = card.querySelector(".thumbnail");
+    if (!thumbWrap || !img) return;
+
+    thumbWrap.addEventListener("click", function () {
+      const videoUrl  = img.dataset.video || "";
+      const container = document.getElementById("videoPopupContentInner");
+      let html = "";
+
+      if (/youtube\.com|youtu\.be/.test(videoUrl)) {
+        html = `<iframe src="${videoUrl}" frameborder="0" allowfullscreen style="width:100%; height:100%;"></iframe>`;
+      } else {
+        html = `<video src="${videoUrl}" autoplay controls style="width:100%; height:100%;"></video>`;
+      }
+
+      container.innerHTML = html;
+      document.getElementById("videoPopup").style.display = "flex";
+    });
+  });
+
+  // Pop-up schließen bei Klick aufs Overlay
+  document.getElementById("videoPopup").addEventListener("click", function (e) {
+    if (e.target === this) closeVideoPopup();
+  });
+
+  // ---------- Hover-Autoplay Preview (YouTube & CDN) ----------
+  const canHover =
+    (window.matchMedia && window.matchMedia('(any-hover: hover)').matches) ||
+    !('ontouchstart' in window); // Fallback: Geräte ohne Touch
+
+  function isYouTube(url) { return /youtube\.com|youtu\.be/.test(url || ""); }
+  function getYouTubeId(url) {
+    if (!url) return null;
+    const m = url.match(/youtu\.be\/([^?&]+)/) || url.match(/v=([^?&]+)/) || url.match(/embed\/([^?&]+)/);
+    return m ? m[1] : null;
+  }
+  function getYouTubeEmbed(url) {
+    const id = getYouTubeId(url);
+    if (!id) return null;
+    return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&playsinline=1&modestbranding=1&rel=0`;
+  }
+
+  if (canHover) {
+    cards.forEach(card => {
+      const thumbWrap = card.querySelector('.video-thumb');
+      const img       = thumbWrap ? thumbWrap.querySelector('.thumbnail') : null;
+      if (!thumbWrap || !img) return;
+
+      if (getComputedStyle(thumbWrap).position === 'static') {
+        thumbWrap.style.position = 'relative';
+      }
+
+      let overlay = null;
+      let hoverDelayTimer = null;
+
+      function mountPreview() {
+        if (overlay) return;
+        const videoUrl = img.dataset.video || "";
+
+        overlay = document.createElement('div');
+        overlay.className = 'hover-player';
+        overlay.style.position = 'absolute';
+        overlay.style.inset = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.pointerEvents = 'none'; // Overlay klickfrei
+        overlay.style.overflow = 'hidden';
+
+        let inner = '';
+        if (isYouTube(videoUrl)) {
+          const src = getYouTubeEmbed(videoUrl);
+          if (!src) return;
+          inner = `<iframe src="${src}" frameborder="0"
+                     allow="autoplay; encrypted-media; picture-in-picture"
+                     style="pointer-events:none;width:100%;height:100%;display:block;"></iframe>`;
+        } else {
+          inner = `<video src="${videoUrl}#t=0.1" muted playsinline autoplay loop
+                     style="pointer-events:none;width:100%;height:100%;object-fit:cover;display:block;"></video>`;
+        }
+        overlay.innerHTML = inner;
+
+        thumbWrap.appendChild(overlay);
+      }
+
+      function unmountPreview() {
+        if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        overlay = null;
+      }
+
+      card.addEventListener('mouseenter', () => {
+        card.classList.add('is-hovering');
+        hoverDelayTimer = setTimeout(mountPreview, 0);
+      });
+      card.addEventListener('mouseleave', () => {
+        card.classList.remove('is-hovering');
+        clearTimeout(hoverDelayTimer);
+        unmountPreview();
+      });
+    });
+  }
+}); // Ende DOMContentLoaded
+
+// Globale Funktion: Pop-up schließen
+function closeVideoPopup() {
+  document.getElementById("videoPopup").style.display = "none";
+  document.getElementById("videoPopupContentInner").innerHTML = "";
+}
+</script>
+
+
+
+{% schema %}
+{
+  "name": "Video Slider mit Pop-up",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Überschrift",
+      "default": "Erfolgsgeschichten"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Überschrift-Größe",
+      "default": "h2",
+      "options": [
+        { "value": "h1", "label": "Groß (H1)" },
+        { "value": "h2", "label": "Mittel (H2)" },
+        { "value": "h3", "label": "Klein (H3)" }
+      ]
+    },
+    { "type": "range", "id": "padding_top", "label": "Padding oben (px)", "min": 0, "max": 200, "step": 2, "default": 60 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding unten (px)", "min": 0, "max": 200, "step": 2, "default": 40 },
+
+  ],
+  "blocks": [
+    {
+      "type": "video",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "thumbnail",
+          "label": "Vorschaubild"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel",
+          "default": "Video-Titel"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Beschreibung",
+          "default": "Kurze Beschreibung zum Video."
+        },
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "Video-Link (YouTube oder Shopify URL)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Video-Slider",
+      "category": "Media",
+      "blocks": [
+        { "type": "video" },
+        { "type": "video" },
+        { "type": "video" }
+      ]
+    }
+  ]
+}
+{% endschema %}

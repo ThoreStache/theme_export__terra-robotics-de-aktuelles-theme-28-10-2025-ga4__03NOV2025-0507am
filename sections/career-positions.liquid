@@ -1,0 +1,415 @@
+{% style %}
+.career-positions-section {
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+  background-color: #ffffff;
+}
+.career-positions-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+.career-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 280px;
+}
+.career-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+.career-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.career-card .meta {
+  font-size: 14px;
+  color: #7c7c7c;
+  margin-bottom: 12px;
+}
+.career-card .desc {
+  font-size: 15px;
+  color: #444;
+  margin-bottom: 15px;
+}
+.career-card ul {
+  padding-left: 20px;
+  margin-bottom: 15px;
+}
+.career-card ul li {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 5px;
+}
+.career-card a.job-button {
+  display: inline-block;
+  margin: 15px auto 0;
+  padding: 10px 20px;
+  background-color: #7c4d9a;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+.career-card a.job-button:hover {
+  background-color: #5b3373;
+  transform: scale(1.04);
+  box-shadow: 0 6px 16px rgba(124, 77, 154, 0.3);
+}
+.career-card .subheading {
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 15px;
+  color: #121212;
+}
+.career-filter-input {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+}
+.filter-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 800px;
+  margin: 20px auto 0;
+  gap: 20px;
+}
+.filter-button {
+  padding: 12px 24px;
+  background-color: #7c4d9a;
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.filter-button:hover {
+  background-color: #5b3373;
+}
+.filter-reset {
+  color: #7c4d9a;
+  font-weight: 600;
+  text-decoration: none;
+}
+.filter-reset:hover {
+  text-decoration: underline;
+}
+@media screen and (max-width: 768px) {
+  .career-positions-wrapper {
+    grid-template-columns: 1fr !important;
+  }
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-button {
+    width: 100%;
+  }
+}
+{% endstyle %}
+
+<section class="career-positions-section">
+  <div class="page-width">
+    <h2 class="title h2" style="text-align: center; margin-bottom: 40px; font-size: 40px; font-family: 'Montserrat', sans-serif; color: #121212;">Offene Positionen</h2>
+      {% assign all_departments = "Digital Development & IT,Beschaffung, Einkauf, Lager & Logistik,Vertrieb, Auftragsbearbeitung, Technik,International Business,Finanz- und Rechtswesen,Marketing, Personal & Administration" | split: "," %}
+      {% assign all_employment_types = "Vollzeit,Teilzeit,Ausbildung,Minijob,Werkstudent" | split: "," %}
+    <div class="career-filter-container" style="text-align:center; margin-bottom: 40px;">
+      <h3 style="font-size: 26px; font-family: 'Montserrat'; font-weight: bold; color: #121212;">TEAM WORK? MAKES THE DREAM WORK!</h3>
+      <div style="max-width: 800px; margin: 30px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Suche"
+          class="career-filter-input"
+          aria-label="Stellenbezeichnung suchen"
+        />
+          <select id="filterDepartment" class="career-filter-input">
+            <option value="">Abteilung</option>
+            {% for item in all_departments %}
+              <option value="{{ item | escape }}">{{ item }}</option>
+            {% endfor %}
+          </select>
+          
+          <select id="filterType" class="career-filter-input">
+            <option value="">Einstellungsart</option>
+            {% for item in all_employment_types %}
+              <option value="{{ item | escape }}">{{ item }}</option>
+            {% endfor %}
+          </select>
+      </div>
+<div class="filter-actions">
+  <div>
+    <button onclick="filterJobs()" class="filter-button">Suchen</button>
+    <span style="margin: 0 10px;">ODER</span>
+    <a href="#" onclick="resetFilter(event)" class="filter-reset">ZEIGE ALLE</a>
+  </div>
+  <button onclick="window.location.href='mailto:bewerbung@terra-robotics.de'" class="filter-button">Initiativbewerbung senden</button>
+</div>
+    </div>
+    <div class="career-positions-wrapper">
+      {% for block in section.blocks %}
+        <div class="career-card"
+          data-department="{{ block.settings.department | strip | downcase }}"
+          data-type="{{ block.settings.type | strip | downcase }}">
+          <h3>{{ block.settings.job_title }}</h3>
+          <div class="meta">{{ block.settings.location }} · {{ block.settings.type }}</div>
+          <div class="desc">{{ block.settings.description }}</div>
+          {% if block.settings.tasks != blank %}
+            <div class="subheading">Ihre Aufgaben:</div>
+            <ul>
+              {% assign task_lines = block.settings.tasks | newline_to_br | split: '<br />' %}
+              {% for line in task_lines %}
+                {% assign line_trimmed = line | strip %}
+                {% if line_trimmed != '' %}
+                  <li>{{ line_trimmed }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {% if block.settings.offer != blank %}
+            <div class="subheading">Wir bieten:</div>
+            <ul>
+              {% assign offer_lines = block.settings.offer | newline_to_br | split: '<br />' %}
+              {% for line in offer_lines %}
+                {% assign line_trimmed = line | strip %}
+                {% if line_trimmed != '' %}
+                  <li>{{ line_trimmed }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {% if block.settings.requirements != blank %}
+            <div class="subheading">Sie bringen mit:</div>
+            <ul>
+              {% assign req_lines = block.settings.requirements | newline_to_br | split: '<br />' %}
+              {% for line in req_lines %}
+                {% assign line_trimmed = line | strip %}
+                {% if line_trimmed != '' %}
+                  <li>{{ line_trimmed }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {% if block.settings.targets != blank %}
+            <div class="subheading">Zielkunden:</div>
+            <ul>
+              {% assign target_lines = block.settings.targets | newline_to_br | split: '<br />' %}
+              {% for line in target_lines %}
+                {% assign line_trimmed = line | strip %}
+                {% if line_trimmed != '' %}
+                  <li>{{ line_trimmed }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <a href="mailto:{{ block.settings.cta_link | default: 'bewerbung@terra-robotics.de' }}" class="job-button">
+            {{ block.settings.cta_text | default: 'Jetzt bewerben' }}
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+        <div id="noResultsMessage" style="display: none; text-align: center; font-size: 16px; color: #7c4d9a; margin-top: 40px;">
+      Es wurden leider keine passenden Jobs gefunden.
+    </div>
+  </div>
+</section>
+
+<script>
+function filterJobs() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const employment = document.getElementById('filterType').value.toLowerCase().trim();
+  const department = document.getElementById('filterDepartment').value.toLowerCase().trim();
+  const cards = document.querySelectorAll('.career-card');
+  let matchesFound = false;
+
+  cards.forEach(card => {
+    const title = card.querySelector('h3')?.innerText.toLowerCase() || '';
+    const desc = card.querySelector('.desc')?.innerText.toLowerCase() || '';
+    const allText = title + ' ' + desc;
+
+    const cardDepartment = card.dataset.department || '';
+    const cardEmployment = card.dataset.type || '';
+
+    const matchesSearch = !search || allText.includes(search);
+    const matchesEmployment = !employment || cardEmployment === employment;
+    const matchesDepartment = !department || cardDepartment === department;
+
+    const visible = matchesSearch && matchesEmployment && matchesDepartment;
+    card.style.display = visible ? 'flex' : 'none';
+    if (visible) matchesFound = true;
+  });
+
+  document.getElementById('noResultsMessage').style.display = matchesFound ? 'none' : 'block';
+}
+
+function resetFilter(event) {
+  if (event) event.preventDefault();
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterType').value = '';
+  document.getElementById('filterDepartment').value = '';
+  filterJobs();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.getElementById('searchInput');
+  if (input) {
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        filterJobs();
+      }
+    });
+  }
+});
+</script>
+
+{% schema %}
+{
+  "name": "Karriere Positionen",
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding oben (px)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding unten (px)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "job",
+      "name": "Jobanzeige",
+      "settings": [
+        {
+          "type": "text",
+          "id": "job_title",
+          "label": "Jobtitel",
+          "default": "Werkstudent Informatik (w/m/div)"
+        },
+        {
+          "type": "text",
+          "id": "location",
+          "label": "Ort",
+          "default": "85669 Pastetten"
+        },
+        {
+          "type": "select",
+          "id": "department",
+          "label": "Abteilung",
+          "default": "Digital Development & IT",
+          "options": [
+            { "value": "Digital Development & IT", "label": "Digital Development & IT" },
+            { "value": "Beschaffung, Einkauf, Lager & Logistik", "label": "Beschaffung, Einkauf, Lager & Logistik" },
+            { "value": "Vertrieb", "label": "Vertrieb" },
+            { "value": "Auftragsbearbeitung", "label": "Auftragsbearbeitung" },
+            { "value": "Technik", "label": "Technik" },
+            { "value": "International Business", "label": "International Business" },
+            { "value": "Finanz- und Rechtswesen", "label": "Finanz- und Rechtswesen" },
+            { "value": "Marketing", "label": "Marketing" },
+            { "value": "Personal & Administration", "label": "Personal & Administration" }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "type",
+          "label": "Anstellungsart",
+          "default": "Vollzeit",
+          "options": [
+            { "value": "Vollzeit", "label": "Vollzeit" },
+            { "value": "Teilzeit", "label": "Teilzeit" },
+            { "value": "Ausbildung", "label": "Ausbildung" },
+            { "value": "Minijob", "label": "Minijob" },
+            { "value": "Werkstudent", "label": "Werkstudent" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "category",
+          "label": "Kategorie (z. B. Werkstudent, Vollzeit)",
+          "default": "Werkstudent"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Kurzbeschreibung",
+          "default": "Tauschen Sie in innovative Robotertechnologien ein und gestalten Sie mit uns die Zukunft."
+        },
+        {
+          "type": "textarea",
+          "id": "tasks",
+          "label": "Ihre Aufgaben (eine Zeile pro Punkt)",
+          "default": "Kundenberatung\nTechnische Unterstützung"
+        },
+        {
+          "type": "textarea",
+          "id": "offer",
+          "label": "Wir bieten (eine Zeile pro Punkt)",
+          "default": "Flexible Arbeitszeiten\nInnovative Projekte"
+        },
+        {
+          "type": "textarea",
+          "id": "requirements",
+          "label": "Sie bringen mit (eine Zeile pro Punkt)",
+          "default": "Technisches Interesse\nTeamfähigkeit"
+        },
+        {
+          "type": "textarea",
+          "id": "targets",
+          "label": "Zielkunden (eine Zeile pro Punkt)",
+          "default": "Hotellerie\nGastronomie"
+        },
+        {
+          "type": "text",
+          "id": "cta_link",
+          "label": "E-Mail-Adresse (z. B. bewerbung@terra-robotics.de)",
+          "default": "bewerbung@terra-robotics.de"
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "Buttontext",
+          "default": "Jetzt bewerben"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "Karrierepositionen",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

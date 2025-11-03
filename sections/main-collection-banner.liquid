@@ -1,0 +1,136 @@
+
+{% comment %}BSS B2B Login{% endcomment %}
+{% capture redirectScript %}{% render 'bsscommerce-redirect-product-page-logic', product: product, collection: collection %}{% endcapture %}{% unless redirectScript contains "Liquid error" %}{%- assign redirectScript = redirectScript | strip | split: ',' -%}{%- if redirectScript[0] != blank -%}<script type="text/javascript" id="hp-behavior">const url = "https://login-to-access-page-api.bsscommerce.com/behavior"; fetch(url, { method: "POST", headers: { "Content-Type": "application/json", }, body: JSON.stringify({domain: window.Shopify.shop, events: "hp-access" })});</script><script id="bss-redirect" type="text/javascript">if ( "{{ routes.root_url }}" != "/" && "{{ redirectScript[0] }}".indexOf("-") === -1) {window.location.replace( "{{ routes.root_url }}" + "{{ redirectScript[0] }}" )} else { window.location.replace("{{ redirectScript[0] }}")}</script>{% endif %}{%- if redirectScript[1] != blank -%}{{ redirectScript[1] }}{% endif -%}{% endunless %}
+{% comment %}BSS B2B Login{% endcomment %}
+{% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+{{ 'component-collection-hero.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  /* Padding steuerbar */
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.pad_top | default: 56 }}px;
+    padding-bottom: {{ section.settings.pad_bottom | default: 56 }}px;
+  }
+
+  /* Überschrift/Beschreibung im Kollektionsbanner zentrieren */
+  .collection-hero__text-wrapper,
+  .collection-hero__title,
+  .collection-hero__description { text-align: center; }
+
+  .collection-hero__title,
+  .collection-hero__description { margin-left: auto; margin-right: auto; }
+
+  /* Lila Farbe für Highlights */
+  .highlight-purple { color: #7c4d9a; }
+
+  /* vorhandene Mobile-Anpassung beibehalten */
+  @media screen and (max-width: 749px) {
+    .collection-hero--with-image .collection-hero__inner {
+      padding-bottom: calc({{ settings.media_shadow_vertical_offset | at_least: 0 }}px + 2rem);
+    }
+  }
+{%- endstyle -%}
+
+
+<div class="collection-hero{% if section.settings.show_collection_image and collection.image %} collection-hero--with-image{% endif %} color-{{ section.settings.color_scheme }} gradient">
+  <div class="collection-hero__inner page-width section-{{ section.id }}-padding {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
+    <div class="collection-hero__text-wrapper">
+      {% capture heading_raw %}{{ collection.title }}{% endcapture %}
+      {% assign heading_html = heading_raw %}
+
+      {% if section.settings.highlight_words != blank %}
+        {% assign tokens = section.settings.highlight_words | split: ',' %}
+        {% for raw in tokens %}
+          {% assign w = raw | strip %}
+          {% if w != '' %}
+            {% capture wrap %}<span class="highlight-purple">{{ w }}</span>{% endcapture %}
+            {% assign heading_html = heading_html | replace: w, wrap %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      <h1 class="collection-hero__title">
+        <span class="visually-hidden">{{ 'sections.collection_template.title' | t }}: </span>
+        {{ heading_html | raw }}
+      </h1>
+
+      {%- if section.settings.show_collection_description -%}
+        <div class="collection-hero__description rte">{{ collection.description }}</div>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.show_collection_image and collection.image -%}
+      <div class="collection-hero__image-container media gradient">
+        <img
+          srcset="
+            {%- if collection.image.width >= 165 -%}{{ collection.image | image_url: width: 165 }} 165w,{%- endif -%}
+            {%- if collection.image.width >= 360 -%}{{ collection.image | image_url: width: 360 }} 360w,{%- endif -%}
+            {%- if collection.image.width >= 535 -%}{{ collection.image | image_url: width: 535 }} 535w,{%- endif -%}
+            {%- if collection.image.width >= 750 -%}{{ collection.image | image_url: width: 750 }} 750w,{%- endif -%}
+            {%- if collection.image.width >= 1070 -%}{{ collection.image | image_url: width: 1070 }} 1070w,{%- endif -%}
+            {%- if collection.image.width >= 1500 -%}{{ collection.image | image_url: width: 1500 }} 1500w,{%- endif -%}
+            {{ collection.image | image_url }} {{ collection.image.width }}w
+          "
+          src="{{ collection.image | image_url: width: 750 }}"
+          sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | divided_by: 2 }}px, (min-width: 750px) calc(50vw - 130px), calc(50vw - 55px)"
+          alt="{{ collection.image.alt | escape }}"
+          width="{{ collection.image.width }}"
+          height="{{ collection.image.height }}"
+        >
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main-collection-banner.name",
+  "class": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-collection-banner.settings.paragraph.content"
+    },
+    {
+      "type": "range",
+      "id": "pad_top",
+      "min": 0, "max": 160, "step": 4, "unit": "px",
+      "label": "Padding oben",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "pad_bottom",
+      "min": 0, "max": 160, "step": 4, "unit": "px",
+      "label": "Padding unten",
+      "default": 0
+    },
+    {
+      "type": "text",
+      "id": "highlight_words",
+      "label": "Wörter lila färben (kommagetrennt)",
+      "placeholder": "Robotik, Team, Industrie",
+      "default": "Default"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_description",
+      "default": true,
+      "label": "t:sections.main-collection-banner.settings.show_collection_description.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_image",
+      "default": false,
+      "label": "t:sections.main-collection-banner.settings.show_collection_image.label",
+      "info": "t:sections.main-collection-banner.settings.show_collection_image.info"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    }
+  ]
+}
+{% endschema %}

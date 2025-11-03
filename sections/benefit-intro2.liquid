@@ -1,0 +1,217 @@
+{% stylesheet %}
+.benefit-intro {
+  text-align: center;
+}
+
+.benefit-intro h1 {
+  margin-bottom: 2rem;
+}
+
+.benefit-intro__benefits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem 4rem;
+  margin-bottom: 2rem; /* Abstand zur Beschreibung */
+}
+
+.benefit-intro__benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-weight: normal; /* Standard: nicht fett */
+}
+
+.benefit-intro__benefit strong {
+  font-weight: 600; /* Nur die Überschrift fett */
+}
+
+.benefit-intro__benefit span {
+  font-weight: 400; /* Vorteil bleibt normal */
+}
+
+.benefit-intro__benefits_1 {
+  /*display: flex;*/
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem 4rem;
+  margin-bottom: 2rem; /* Abstand zur Beschreibung */
+}
+
+.benefit-intro__benefit_1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.benefit-intro__benefit img {
+  width: 24px;
+  height: 24px;
+}
+
+.benefit-intro__text {
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+  color: #121212BF;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* Tablet + kleiner Desktop */
+@media screen and (max-width: 989px) {
+  .benefit-intro__benefits {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    justify-content: center;
+    column-gap: 2rem;
+    row-gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .benefit-intro__benefit {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .benefit-intro__text {
+    font-size: 15px;
+  }
+}
+
+@media screen and (max-width: 989px) {
+  .benefit-intro__benefits_1 {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    justify-content: center;
+    column-gap: 2rem;
+    row-gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .benefit-intro__benefit_1 {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .benefit-intro__text_1 {
+    font-size: 15px;
+  }
+}
+
+/* Mobil */
+@media screen and (max-width: 749px) {
+  .benefit-intro__text {
+    font-size: 14px;
+  }
+}
+{% endstylesheet %}
+
+<section class="benefit-intro section-{{ section.id }}-padding">
+  <div class="page-width">
+    <div class="benefit-intro__benefits_1">
+      {% for i in (1..3) %}
+        {% assign key = "benefit_" | append: i %}
+        {% assign keyHeading = "benefit_heading_" | append: i %}
+        {% assign label = section.settings[key] %}
+         {% assign labelHeading = section.settings[keyHeading] %}
+        {% if label != blank %}
+            <div class="benefit-intro__benefit">
+                <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/Checkmark.svg?v=1749107489" alt="Check" width="24" height="24" />
+                <strong>{{ labelHeading }}</strong> <span>- {{ label }}</span>
+            </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% if section.settings.text != blank %}
+      <div class="benefit-intro__text">{{ section.settings.text }}</div>
+    {% endif %}
+  </div>
+</section>
+
+
+
+{% schema %}
+{
+  "name": "Kategorietext Vorteile",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+     {
+      "type": "text",
+      "id": "benefit_heading_1",
+      "label": "Überschrift 1",
+      "default": "Überschrift 1"
+    },
+    {
+      "type": "text",
+      "id": "benefit_1",
+      "label": "Vorteil 1",
+      "default": "Vorteil 1"
+    },
+    {
+      "type": "text",
+      "id": "benefit_heading_2",
+      "label": "Überschrift 2",
+      "default": "Überschrift 2"
+    },
+    {
+      "type": "text",
+      "id": "benefit_2",
+      "label": "Vorteil 2",
+      "default": "Vorteil 2"
+    },
+    {
+      "type": "text",
+      "id": "benefit_heading_3",
+      "label": "Überschrift 3",
+      "default": "Überschrift 3"
+    },
+    {
+      "type": "text",
+      "id": "benefit_3",
+      "label": "Vorteil 3",
+      "default": "Vorteil 3"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Beschreibung",
+      "default": "Kurze Einleitung zur Kategorie mit Fokus auf Kundennutzen und Einsatzfelder."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Abstand oben",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Abstand unten",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    }
+  ],
+  "presets": [
+    {
+      "name": "Vorteils-Einleitung"
+    }
+  ]
+}
+{% endschema %}
+
+{%- style -%}
+.section-{{ section.id }}-padding {
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+}
+{%- endstyle -%}

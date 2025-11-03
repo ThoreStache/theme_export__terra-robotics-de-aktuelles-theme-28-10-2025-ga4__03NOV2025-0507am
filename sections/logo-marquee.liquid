@@ -1,0 +1,159 @@
+{% schema %}
+  {
+    "name": "Logo Marquee Slider",
+    "tag": "section",
+    "settings": [
+      {
+    "type": "range",
+    "id": "padding_top",
+    "label": "Abstand oben (Padding Top)",
+    "default": 64,
+    "min": 0,
+    "max": 160,
+    "step": 8,
+    "unit": "px"
+  },
+  {
+    "type": "range",
+    "id": "padding_bottom",
+    "label": "Abstand unten (Padding Bottom)",
+    "default": 64,
+    "min": 0,
+    "max": 160,
+    "step": 8,
+    "unit": "px"
+  }
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo_image",
+          "label": "Firmenlogo"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    {
+      "name": "Logo Marquee Slider",
+      "category": "Abschnitte"
+    }
+  ]
+}
+{% endschema %}
+
+{% style %}
+.logo-marquee-wrapper {
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+  background-color: #fff;
+}
+
+.logo-marquee-section {
+  overflow: hidden;
+  position: relative;
+}
+
+.logo-marquee-inner {
+  display: flex;
+  width: fit-content;
+  animation: scroll-marquee 60s linear infinite;
+}
+
+.logo-marquee-track {
+  display: flex;
+  gap: 3rem;
+}
+
+.logo-marquee-section img {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  padding: 0.5rem 1rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+@keyframes scroll-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.logo-heading-wrapper {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo-marquee-heading {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #121212;
+  margin: 0 0 30px 0;
+}
+
+.logo-marquee-heading .highlight-purple {
+  color: #7c4d9a;
+}
+
+/* Responsive Schriftgrößen */
+@media screen and (min-width: 990px) {
+  .logo-marquee-heading {
+    font-size: 40px;
+  }
+}
+
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .logo-marquee-heading {
+    font-size: 35px;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .logo-marquee-heading {
+    font-size: 30px;
+    margin-bottom: 20px;
+  }
+}
+{% endstyle %}
+
+<!-- 🟪 Gesamter Wrapper mit Padding -->
+<div class="logo-marquee-wrapper">
+
+  <!-- 🟣 Überschrift -->
+  <div class="logo-heading-wrapper">
+    <h2 class="logo-marquee-heading">
+      Wir sind <span class="highlight-purple">bekannt aus</span>
+    </h2>
+  </div>
+
+  <!-- 🔁 Logoslider -->
+  <div class="logo-marquee-section">
+    <div class="logo-marquee-inner">
+      {% for i in (1..6) %}
+        <div class="logo-marquee-track">
+          {% for block in section.blocks %}
+            {% if block.settings.logo_image != blank %}
+              <img 
+                src="{{ block.settings.logo_image | image_url: width: 200 }}" 
+                alt="Firmenlogo"
+                loading="lazy"
+              >
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>

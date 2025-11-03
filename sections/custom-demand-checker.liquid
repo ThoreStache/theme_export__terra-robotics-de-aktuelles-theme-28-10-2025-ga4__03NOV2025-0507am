@@ -1,0 +1,638 @@
+<style>
+/* Einheitliche Button-Basis */
+button.next-step,
+button.submit-offer,
+button.prev-step {
+  box-sizing: border-box;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  min-height: 48px;
+  min-width: 140px;
+  font-weight: normal;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* Weiter- und Absenden-Button */
+button.next-step,
+button.submit-offer {
+  background: #7c4d9a;
+  color: #fff;
+  border: none;
+}
+button.next-step:hover,
+button.submit-offer:hover {
+  background: #692c84;
+}
+
+/* Zurück-Button */
+button.prev-step {
+  background: transparent;
+  color: #7c4d9a;
+  border: 2px solid #7c4d9a;
+  margin-left: 1rem;
+}
+button.prev-step:hover {
+  background: #f6f1ec;
+  color: #692c84;
+  border-color: #692c84;
+}
+
+/* Abschnitt */
+.demand-checker-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
+
+/* Schritte */
+.step {
+  display: none;
+  margin-bottom: 3rem;
+}
+.step.active {
+  display: block;
+}
+
+/* Überschriften */
+.demand-checker-section h2,
+.demand-checker-section .step h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  color: #121212;
+  text-align: center;
+}
+
+/* Beschreibungstext */
+.demand-checker-section p,
+.demand-checker-section .description,
+.demand-checker-section label,
+.demand-checker-section input,
+.demand-checker-section .range-value {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #121212BF;
+  text-align: center;
+}
+
+/* Optionen-Grid */
+.options-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Standard-Option (z.B. für Branchen) */
+.option {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #eee7dc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 180px;
+  height: 180px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+.option:hover,
+.option.active {
+  border-color: #7c4d9a;
+  background: #f6f1ec;
+}
+.option img {
+  max-width: 80px;
+  margin-bottom: 0.5rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Spezielle Gestaltung für Step 3 (Robotertypen) */
+.step#step-3 .step3-option {
+  width: 200px;
+  height: auto;
+  background: #eee7dc;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.step#step-3 .step3-option .image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  background-color: #eee7dc;
+}
+
+.step#step-3 .step3-option .image-wrapper img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: auto;
+}
+
+.step#step-3 .step3-option .option-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  color: #121212BF;
+  text-align: center;
+  padding: 0.8rem;
+  background: #eee7dc;
+  min-height: 50px;
+}
+
+/* Hover- & Active-State */
+.step#step-3 .step3-option:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.step#step-3 .step3-option.active {
+  border: 2px solid #7c4d9a;
+}
+
+/* Grid-Anpassung */
+.step#step-3 .options-grid {
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 1rem;
+  overflow-x: visible;
+}
+
+/* Slider */
+.range-wrapper {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.range-wrapper input[type=range] {
+  width: 100%;
+}
+.range-value {
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+/* Formularfelder */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+  align-items: center;
+}
+.contact-form button.submit-offer {
+  width: 100%;
+}
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="tel"] {
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+.contact-form label {
+  font-weight: 600;
+}
+.contact-form input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+/* Select-Feld wie Inputs stylen (für Aufmerksamkeitsquelle) */
+.contact-form select {
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 100%;
+  background: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #121212BF;
+  line-height: 1.2;
+}
+.contact-form .field-stack { width: 100%; text-align: left; }
+.contact-form .field-stack label { display: block; margin: .25rem 0 .3rem; font-weight: 600; }
+
+/* Button-Text */
+.demand-checker-section button {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  text-align: center;
+  font-weight: normal;
+}
+
+/* Mobiloptimierung */
+@media (max-width: 768px) {
+  .demand-checker-section h2,
+  .demand-checker-section .step h2 {
+    font-size: 30px;
+  }
+}
+@media (max-width: 500px) {
+  .demand-checker-section h2,
+  .demand-checker-section .step h2 {
+    font-size: 24px;
+  }
+}
+@media (max-width: 380px) {
+  .demand-checker-section h2,
+  .demand-checker-section .step h2 {
+    font-size: 20px;
+  }
+}
+
+/* 📱 Mobile Grid für Optionen */
+@media (max-width: 600px) {
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;
+    gap: 1rem;
+  }
+
+  /* gleiche Spezifität wie Desktop-Regel, damit überschrieben wird */
+  .step#step-3 .step3-option,
+  .option {
+    width: 100%;
+    max-width: 160px;
+  }
+
+  .options-grid > .option:last-child:nth-child(odd),
+  .options-grid > .step3-option:last-child:nth-child(odd) {
+    grid-column: span 2;
+    justify-self: center;
+  }
+}
+
+/* Highlight */
+.highlight-purple { color: #7c4d9a; }
+</style>
+
+<div class="demand-checker-section">
+  <!-- Step 1 -->
+  <div class="step active" id="step-1">
+    {% assign heading_level = section.settings.heading_level | default: 'h2' %}
+    <{{ heading_level }}>
+      Wie viele Roboter benötigt <span class="highlight-purple">Ihr Unternehmen</span>?
+    </{{ heading_level }}>
+    <p class="description">Beantworten Sie ein paar kurze Fragen. Wir berechnen für Sie, wie viele Roboter optimal für Ihre Fläche und Ihren Bedarf sind!</p>
+    <div style="text-align:center;">
+      <button class="next-step" data-next="2">Jetzt starten →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Branche -->
+<div class="step" id="step-2">
+  <h2>Frage 1: Branche / Einsatzfeld</h2>
+  <p class="description">In welchem Bereich sollen die Roboter eingesetzt werden?</p>
+  <div class="options-grid" data-multi="false" data-name="branche">
+    <div class="option">
+      <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/mann_4d602d8b-2aa1-424f-a66f-0d9d5dfa8196.png?v=1744038139" alt="Gastronomie Icon">
+      Gastronomie
+    </div>
+    <div class="option">
+      <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/menschen.png?v=1744038708" alt="Hotellerie Icon">
+      Hotellerie
+    </div>
+    <div class="option">
+      <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/wohnung_1.png?v=1744038139" alt="Büro / Empfang Icon">
+      Büro / Empfang
+    </div>
+    <div class="option">
+      <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/building.png?v=1744704792" alt="Industrie Icon">
+      Industrie / Produktion
+    </div>
+    <div class="option">
+      <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/market.png?v=1744704791" alt="Einzelhandel Icon">
+      Einzelhandel
+    </div>
+    <div class="option">
+      <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/schule_3e474eb3-cd9c-4c26-a086-d177f6a6b1ab.png?v=1744038139" alt="Gesundheitswesen Icon">
+      Gesundheitswesen
+    </div>
+    <div class="option">
+      <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/globe.png?v=1744704792" alt="Sonstiges Icon">
+      Sonstiges
+    </div>
+  </div>
+  <div style="text-align:center;">
+  <button class="prev-step" data-prev="1">← Zurück</button>
+  <button class="next-step" data-next="3">Weiter →</button>
+  </div>
+</div>
+
+  <!-- Step 3: Produkttypen -->
+<div class="step" id="step-3">
+  <h2>Frage 2: Robotertyp / Aufgabenbereich</h2>
+  <p class="description">Wofür sollen die Roboter eingesetzt werden?<br><small>Mehrere Auswahlmöglichkeiten</small></p>
+  <div class="options-grid" data-multi="true" data-name="kategorien">
+    <div class="option step3-option">
+      <div class="image-wrapper">
+        <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/Bedarfsermittlung_Reinigung.png?v=1745419510" alt="Reinigungsroboter">
+       </div> 
+      <div class="option-label">Reinigungsroboter</div>
+    </div>
+    <div class="option step3-option">
+      <div class="image-wrapper">
+        <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/Bedarfsermittlung_Service.png?v=1745419510" alt="Serviceroboter">
+      </div>  
+      <div class="option-label">Serviceroboter</div>
+    </div>
+    <div class="option step3-option">
+      <div class="image-wrapper">
+        <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/Bedarfsermittlung_Marketing.png?v=1745419510" alt="Marketingroboter">
+      </div> 
+      <div class="option-label">Marketingroboter</div>
+    </div>
+    <div class="option step3-option">
+      <div class="image-wrapper">
+        <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/Bedarfsermittlung_Empfang.png?v=1745419510" alt="Empfangsroboter">
+      </div> 
+      <div class="option-label">Empfangsroboter</div>
+    </div>
+    <div class="option step3-option">
+      <div class="image-wrapper">
+        <img src="https://cdn.shopify.com/s/files/1/0842/7116/9893/files/Bedarfsermittlung_Industrie.png?v=1745419510" alt="Industrieroboter">
+      </div>  
+      <div class="option-label">Industrieroboter</div>
+    </div>
+  </div>
+  <div style="text-align:center;">
+  <button class="prev-step" data-prev="2">← Zurück</button>
+  <button class="next-step" data-next="4">Weiter →</button>
+  </div>
+</div>
+
+  <!-- Step 4: Fläche -->
+  <div class="step" id="step-4">
+    <h2>Frage 3: Flächengröße</h2>
+    <p class="description">Wie groß ist der Bereich, der abgedeckt werden soll?</p>
+    <div class="range-wrapper">
+      <input type="range" id="area" name="area" min="50" max="10000" value="2000">
+      <div class="range-value"><span id="area-value">2.000</span> m²</div>
+    </div>
+    <div style="text-align:center;">
+  <button class="prev-step" data-prev="3">← Zurück</button>
+  <button class="next-step" data-next="5">Weiter →</button>
+    </div>
+  </div>
+
+<!-- Step 5: Kontakt -->
+  <div class="step" id="step-5">
+    <h2>Ihre individuelle Roboterlösung ist bereit!</h2>
+    <p class="description">Basierend auf Ihren Angaben ermitteln wir die optimale Anzahl an Robotern und senden Ihnen ein maßgeschneidertes Angebot! Schnell, unverbindlich und persönlich.</p>
+    
+    <form action="https://formspree.io/f/xeogqlkj" method="POST" class="contact-form">
+      
+      <!-- ✉️ Pflicht: Eigene ID von Formspree einfügen! -->
+      <input type="hidden" name="_subject" value="Neue Anfrage: Bedarfsermittlung über terra-robotics.de">
+  
+      <!-- Dynamisch gefüllte Felder -->
+      <input type="hidden" name="Einsatzbereich" id="formBranche">
+      <input type="hidden" name="Produkttypen" id="formKategorien">
+      <input type="hidden" name="Flaeche" id="formFlaeche">
+  
+    <!-- Sichtbare Kontaktdaten -->
+    <input type="text" name="Firma" placeholder="Firmenname" required aria-label="Firmenname">
+    <input type="text" name="Ansprechperson" placeholder="Ansprechperson" required aria-label="Ansprechperson">
+    <input type="email" name="Email" placeholder="E-Mail-Adresse" required aria-label="E-Mail-Adresse">
+    <input type="tel" name="Telefon" placeholder="Telefonnummer" aria-label="Telefonnummer">
+
+    <!-- Wie sind Sie auf uns aufmerksam geworden? -->
+    <div class="field-stack">
+      <label for="ref-source">Wie sind Sie auf uns aufmerksam geworden?</label>
+      <select id="ref-source" name="ref-source" required>
+        <option value="" disabled selected>Bitte auswählen</option>
+        <option>Fernseher</option>
+        <option>Radio</option>
+        <option>Facebook, Instagram, LinkedIn, TikTok</option>
+        <option>Google / Google Werbung</option>
+        <option>YouTube</option>
+        <option>Freunden / Bekannten</option>
+        <option>Messe / Event</option>
+        <option>Sonstiges</option>
+      </select>
+    </div>
+
+    <!-- Zusatzfeld für Sonstiges -->
+    <div class="field-stack" id="ref-other-wrap" style="display:none;">
+      <label for="ref-other">Bitte angeben</label>
+      <input type="text" id="ref-other" placeholder="z. B. Magazin, Blog, Empfehlung mit Name">
+    </div>
+
+    <!-- Wird an Formspree übertragen -->
+    <input type="hidden" name="Aufmerksamkeitsquelle" id="ref-final" required>
+
+    <!-- Zustimmung zu AGB -->
+    <label for="agb-zustimmung" style="display:block; margin-top: 1rem;">
+      <input type="checkbox" id="agb-zustimmung" name="agb" required>
+      Ich stimme den <a href="/pages/agb" target="_blank">Geschäftsbedingungen</a> zu
+    </label>
+
+    <!-- Bestätigung vor Absenden -->
+    <label for="angaben-bestaetigung" style="display:block; margin-bottom: 1rem;">
+      <input type="checkbox" id="angaben-bestaetigung" name="bestaetigung" required>
+      Ich habe meine Angaben überprüft und möchte die Anfrage absenden.
+    </label>
+
+    <!-- Absende-Button -->
+    <button type="submit" class="submit-offer">Jetzt Angebot anfordern</button>
+  </form>
+</div> 
+
+</div> 
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const steps = document.querySelectorAll(".step");
+    const nextButtons = document.querySelectorAll(".next-step");
+    const prevButtons = document.querySelectorAll(".prev-step");
+    const options = document.querySelectorAll(".options-grid");
+
+    /* NEU: Referenzen für Aufmerksamkeitsquelle */
+    const contactForm  = document.querySelector(".contact-form");
+    const refSelect    = document.getElementById("ref-source");
+    const refOtherWrap = document.getElementById("ref-other-wrap");
+    const refOther     = document.getElementById("ref-other");
+    const refFinal     = document.getElementById("ref-final");
+
+    // Weiter-Button-Logik mit Validierung + Scroll-Offset
+    nextButtons.forEach(btn => {
+      btn.addEventListener("click", function () {
+        const currentStep = this.closest(".step");
+        const currentStepId = currentStep?.id;
+        const next = this.dataset.next;
+
+        // Validierung für Schritt 2 (Branche)
+        if (currentStepId === "step-2") {
+          const selected = currentStep.querySelector('.option.active');
+          if (!selected) {
+            alert("Bitte wählen Sie eine Branche aus, bevor Sie fortfahren.");
+            return;
+          }
+        }
+
+        // Validierung für Schritt 3 (Robotertypen)
+        if (currentStepId === "step-3") {
+          const selected = currentStep.querySelectorAll('.option.active');
+          if (selected.length === 0) {
+            alert("Bitte wählen Sie mindestens einen Robotertyp aus, bevor Sie fortfahren.");
+            return;
+          }
+        }
+
+        // Schrittwechsel & Scroll mit Abstand
+        if (next && document.getElementById("step-" + next)) {
+          steps.forEach(s => s.classList.remove("active"));
+          const targetStep = document.getElementById("step-" + next);
+          targetStep.classList.add("active");
+
+          const yOffset = -80;
+          const y = targetStep.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+      });
+    });
+
+    // Zurück-Button-Logik mit Scroll-Offset
+    prevButtons.forEach(btn => {
+      btn.addEventListener("click", function () {
+        const prev = this.dataset.prev;
+        if (prev && document.getElementById("step-" + prev)) {
+          steps.forEach(s => s.classList.remove("active"));
+          const targetStep = document.getElementById("step-" + prev);
+          targetStep.classList.add("active");
+
+          const yOffset = -80;
+          const y = targetStep.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+      });
+    });
+
+    // Optionen aktivieren
+    options.forEach(group => {
+      const multi = group.dataset.multi === "true";
+      group.querySelectorAll(".option").forEach(opt => {
+        opt.addEventListener("click", function () {
+          if (!multi) {
+            group.querySelectorAll(".option").forEach(o => o.classList.remove("active"));
+          }
+          this.classList.toggle("active");
+        });
+      });
+    });
+
+    // Flächen-Slider aktualisieren
+    const range = document.getElementById("area");
+    const output = document.getElementById("area-value");
+    if (range && output) {
+      range.addEventListener("input", () => {
+        output.textContent = Number(range.value).toLocaleString('de-DE');
+      });
+    }
+
+    // Formularwerte übergeben
+    const formBranche = document.getElementById("formBranche");
+    const formKategorien = document.getElementById("formKategorien");
+    const formFlaeche = document.getElementById("formFlaeche");
+
+    /* NEU: Umschalten von "Sonstiges" */
+    if (refSelect) {
+      refSelect.addEventListener("change", () => {
+        const isOther = refSelect.value === "Sonstiges";
+        if (refOtherWrap) refOtherWrap.style.display = isOther ? "block" : "none";
+        if (refOther)     refOther.required = isOther;
+      });
+    }
+
+    /* NEU: Submit-Handler erweitert */
+    if (contactForm) {
+      contactForm.addEventListener("submit", function (e) {
+        const selectedBranche = document.querySelector('[data-name="branche"] .option.active');
+        if (formBranche && selectedBranche) {
+          formBranche.value = selectedBranche.innerText.trim();
+        }
+
+        const selectedKategorien = Array
+          .from(document.querySelectorAll('[data-name="kategorien"] .option.active'))
+          .map(el => el.innerText.trim());
+        if (formKategorien) {
+          formKategorien.value = selectedKategorien.join(", ");
+        }
+
+        if (formFlaeche && range) {
+          formFlaeche.value = range.value + " m²";
+        }
+
+        // Aufmerksamkeitsquelle + Validierung
+        if (refFinal && refSelect) {
+          let v = refSelect.value || "";
+          if (!v) {
+            alert("Bitte wählen Sie, wie Sie auf uns aufmerksam geworden sind.");
+            e.preventDefault();
+            return;
+          }
+          if (v === "Sonstiges") {
+            const extra = (refOther && refOther.value.trim()) ? refOther.value.trim() : "";
+            if (!extra) {
+              alert("Bitte geben Sie bei 'Sonstiges' eine kurze Info an.");
+              e.preventDefault();
+              return;
+            }
+            v = "Sonstiges: " + extra;
+          }
+          refFinal.value = v;
+        }
+      });
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Bedarfsermittlungstool",
+  "settings": [
+    {
+      "type": "select",
+      "id": "heading_level",
+      "label": "HTML-Tag der Hauptüberschrift",
+      "options": [
+        { "value": "h1", "label": "H1 (nur einmal pro Seite verwenden)" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    }
+  ],
+  "blocks": [],
+  "presets": [
+    {
+      "name": "Bedarfsermittlungstool",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

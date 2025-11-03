@@ -1,0 +1,230 @@
+{{ 'collage.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  /* === Headline: zentriert + größensteuerbar + etwas mehr Abstand === */
+  .tc-heading-{{ section.id }} {
+    text-align: center;
+    line-height: 1.2;
+    margin: 0 0 3rem 0; /* ↑ Abstand zur Bildkarte erhöht (vorher 1rem) */
+    font-size: {{ section.settings.heading_size_mobile_px }}px;
+  }
+  @media (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+    .tc-heading-{{ section.id }} {
+      font-size: {{ section.settings.heading_size_desktop_px }}px;
+      margin-bottom: 2.25rem; /* Desktop minimal größerer Abstand */
+    }
+  }
+
+  /* === Collage auf volle Theme-Breite === */
+  .collage{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--grid-desktop-horizontal-spacing, 20px);
+  }
+  .collage__item { grid-column: 1 / -1; }
+
+  /* === Runde Ecken für die Bilder (Wrapper & img) === */
+  .collage-card .media{
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .collage-card .media img{
+    width: 100%;
+    border-radius: 20px;
+  }
+
+  /* === Styles für Wort-Highlights in der Überschrift === */
+  .highlight-purple {
+    color: #7c4d9a;
+  }
+
+  .underline-highlight {
+    position: relative;
+    display: inline-block;
+    font-weight: 700;
+    color: #121212;
+  }
+  .underline-highlight::after {
+    content: "";
+    position: absolute;
+    left: -2px;
+    bottom: 0.05em;
+    width: 103%;
+    height: 0.36em;
+    background: linear-gradient(
+      to right,
+      rgba(124, 77, 154, 0.7) 0%,
+      rgba(124, 77, 154, 0.7) 40%,
+      rgba(124, 77, 154, 0.7) 100%
+    );
+    border-radius: 6px 4px 3px 5px;
+    z-index: -1;
+    transform: rotate(-0.8deg);
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient isolate">
+  <div class="page-width section-{{ section.id }}-padding">
+
+    {%- comment -%} Überschrift mit Wort-Highlights aufbereiten {%- endcomment -%}
+    {% assign heading_html = section.settings.heading %}
+    {% assign purple_list = section.settings.highlight_words_purple | default: '' | split: ',' %}
+    {% for w in purple_list %}
+      {% assign w_trim = w | strip %}
+      {% if w_trim != '' %}
+        {% capture wrapped %}<span class="highlight-purple">{{ w_trim }}</span>{% endcapture %}
+        {% assign heading_html = heading_html | replace: w_trim, wrapped %}
+      {% endif %}
+    {% endfor %}
+
+    {% assign underline_list = section.settings.highlight_words_underline | default: '' | split: ',' %}
+    {% for w in underline_list %}
+      {% assign w_trim = w | strip %}
+      {% if w_trim != '' %}
+        {% capture wrapped %}<span class="underline-highlight">{{ w_trim }}</span>{% endcapture %}
+        {% assign heading_html = heading_html | replace: w_trim, wrapped %}
+      {% endif %}
+    {% endfor %}
+
+    {% if section.settings.heading != blank %}
+      <h2 class="tc-heading-{{ section.id }}">
+        {{ heading_html }}
+      </h2>
+    {% endif %}
+
+    <div class="collage">
+      {% for block in section.blocks %}
+        {% if block.type == 'image' %}
+          <div class="collage__item collage__item--image" {{ block.shopify_attributes }}>
+            <div class="collage-card global-media-settings">
+              {% assign has_mobile = false %}
+              {% if block.settings.image_mobile != blank %}{% assign has_mobile = true %}{% endif %}
+
+              {% if block.settings.image != blank %}
+                {% assign desktop_ratio_img = block.settings.image %}
+              {% elsif has_mobile %}
+                {% assign desktop_ratio_img = block.settings.image_mobile %}
+              {% else %}
+                {% assign desktop_ratio_img = nil %}
+              {% endif %}
+
+              <div class="media media--transparent ratio ratio--{{ block.id }}"
+                   {% if desktop_ratio_img %}
+                     style="--ratio-percent: {{ 1 | divided_by: desktop_ratio_img.aspect_ratio | times: 100 }}%;"
+                   {% else %}
+                     style="--ratio-percent: 100%;"
+                   {% endif %}>
+                {% if block.settings.image != blank %}
+                  {%- capture desktop_sizes -%}
+                    (min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 }}px,
+                    (min-width: 750px) calc(100vw - 100px),
+                    calc(100vw - 30px)
+                  {%- endcapture -%}
+
+                  <picture>
+                    {% if has_mobile %}
+                      <source media="(max-width: 749px)"
+                              srcset="
+                                {{ block.settings.image_mobile | image_url: width: 320 }} 320w,
+                                {{ block.settings.image_mobile | image_url: width: 480 }} 480w,
+                                {{ block.settings.image_mobile | image_url: width: 640 }} 640w,
+                                {{ block.settings.image_mobile | image_url: width: 750 }} 750w,
+                                {{ block.settings.image_mobile | image_url: width: 960 }} 960w,
+                                {{ block.settings.image_mobile | image_url: width: 1280 }} 1280w,
+                                {{ block.settings.image_mobile | image_url: width: 1600 }} 1600w,
+                                {{ block.settings.image_mobile | image_url: width: 2000 }} 2000w
+                              "
+                              sizes="calc(100vw - 30px)">
+                    {% endif %}
+                    <img
+                      src="{{ block.settings.image | image_url: width: 1600 }}"
+                      srcset="
+                        {{ block.settings.image | image_url: width: 320 }} 320w,
+                        {{ block.settings.image | image_url: width: 480 }} 480w,
+                        {{ block.settings.image | image_url: width: 640 }} 640w,
+                        {{ block.settings.image | image_url: width: 750 }} 750w,
+                        {{ block.settings.image | image_url: width: 960 }} 960w,
+                        {{ block.settings.image | image_url: width: 1100 }} 1100w,
+                        {{ block.settings.image | image_url: width: 1280 }} 1280w,
+                        {{ block.settings.image | image_url: width: 1600 }} 1600w,
+                        {{ block.settings.image | image_url: width: 2000 }} 2000w,
+                        {{ block.settings.image | image_url: width: 2400 }} 2400w,
+                        {{ block.settings.image | image_url: width: 2800 }} 2800w,
+                        {{ block.settings.image | image_url: width: 3200 }} 3200w
+                      "
+                      sizes="{{ desktop_sizes | strip }}"
+                      alt="{{ block.settings.image.alt | escape }}">
+                  </picture>
+                {% else %}
+                  {{ 'detailed-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{%- comment -%}
+  Mobile-Ratio erzwingen + nicht beschneiden (nur wenn mobiles Bild existiert).
+{%- endcomment -%}
+{%- style -%}
+  @media (max-width: 749px){
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'image' and block.settings.image_mobile != blank -%}
+        .ratio--{{ block.id }}{
+          --ratio-percent: {{ 1 | divided_by: block.settings.image_mobile.aspect_ratio | times: 100 }}% !important;
+        }
+        .ratio--{{ block.id }} img{
+          object-fit: contain !important;
+        }
+      {%- endif -%}
+    {%- endfor -%}
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "Bildabschnitt",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "inline_richtext", "id": "heading", "label": "Überschrift", "default": "Unsere Galerie" },
+
+    { "type": "text", "id": "highlight_words_purple", "label": "Wörter lila färben (kommagetrennt)", "default": "Default" },
+    { "type": "text", "id": "highlight_words_underline", "label": "Wörter lila unterstreichen (kommagetrennt)", "default": "Default" },
+
+    { "type": "range", "id": "heading_size_mobile_px", "label": "Überschriftgröße (Mobile, px)", "min": 12, "max": 64, "step": 1, "unit": "px", "default": 30 },
+    { "type": "range", "id": "heading_size_desktop_px", "label": "Überschriftgröße (Desktop, px)", "min": 16, "max": 96, "step": 1, "unit": "px", "default": 40 },
+
+    { "type": "color_scheme", "id": "color_scheme", "label": "Farbschema", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "Abstand oben", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 36 },
+    { "type": "range", "id": "padding_bottom", "label": "Abstand unten", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 36 }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Bild",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Desktop-Bild" },
+        { "type": "image_picker", "id": "image_mobile", "label": "Mobiles Bild (optional)" }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    { "name": "Bildabschnitt", "blocks": [ { "type": "image" } ] }
+  ]
+}
+{% endschema %}

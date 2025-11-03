@@ -1,0 +1,207 @@
+{% comment %}
+  Section: Rich Text mit einstellbarer Breite (px)
+{% endcomment %}
+
+{%- style -%}
+  /* Padding */
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+  @media (max-width: 749px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top | times: 0.6 | round: 0 }}px;
+      padding-bottom: {{ section.settings.padding_bottom | times: 0.6 | round: 0 }}px;
+    }
+  }
+
+  /* Breitensteuerung nur für diese Section */
+  #shopify-section-{{ section.id }} .rtvw__inner {
+    max-width: {{ section.settings.text_width }}px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: {{ section.settings.side_padding }}px;
+    padding-right: {{ section.settings.side_padding }}px;
+    box-sizing: border-box;
+    {% if section.settings.center_text %}text-align: center;{% endif %}
+  }
+
+  /* Überschrift-Größe + Ausrichtung steuerbar */
+  #shopify-section-{{ section.id }} .rtvw__heading {
+    font-size: {{ section.settings.heading_size_px }}px;
+    line-height: 1.15;
+    margin: 0 0 .5em 0;
+    text-align: {{ section.settings.heading_align }}; /* Desktop-Ausrichtung */
+  }
+
+  /* Lila Hervorhebung in der Überschrift */
+  #shopify-section-{{ section.id }} .rtvw__heading .rtvw__hl{
+    color: #7c4d9a;
+  }
+
+  /* Mobile: Schriftgröße + Ausrichtung */
+  @media (max-width: 749px) {
+    #shopify-section-{{ section.id }} .rtvw__heading {
+      font-size: {{ section.settings.heading_size_mobile_px }}px;
+      text-align: {{ section.settings.heading_align_mobile }};
+    }
+  }
+{%- endstyle -%}
+
+<section class="rtvw section-{{ section.id }}-padding">
+  <div class="rtvw__inner">
+    {% if section.settings.heading != blank %}
+      {%- assign heading_html = section.settings.heading -%}
+
+      {%- if section.settings.highlight_words != blank -%}
+        {%- assign tokens = section.settings.highlight_words | split: ',' -%}
+        {%- for raw in tokens -%}
+          {%- assign w = raw | strip -%}
+          {%- if w != '' -%}
+            {%- capture wrap -%}<span class="rtvw__hl">{{ w }}</span>{%- endcapture -%}
+            {%- assign heading_html = heading_html | replace: w, wrap -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      <{{ section.settings.heading_tag }} class="rtvw__heading">
+        {{ heading_html }}
+      </{{ section.settings.heading_tag }}>
+    {% endif %}
+
+    {% if section.settings.text != blank %}
+      <div class="rtvw__text rte">
+        {{ section.settings.text }}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Rich Text Variable",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Überschrift",
+      "default": "Ihre Lösung beginnt mit einem Gespräch!"
+    },
+    {
+      "type": "text",
+      "id": "highlight_words",
+      "label": "Wörter lila hervorheben (kommagetrennt)",
+      "placeholder": "Büro, Industrie, Werbung"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Überschrift-Tag",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "h1", "label": "H1 (einmal pro Seite)" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Ausrichtung Überschrift (Desktop)",
+      "default": "left",
+      "options": [
+        { "value": "left",   "label": "Links" },
+        { "value": "center", "label": "Zentriert" },
+        { "value": "right",  "label": "Rechts" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_align_mobile",
+      "label": "Ausrichtung Überschrift (Mobil)",
+      "default": "left",
+      "options": [
+        { "value": "left",   "label": "Links" },
+        { "value": "center", "label": "Zentriert" },
+        { "value": "right",  "label": "Rechts" }
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Sie haben Fragen oder wünschen ein persönliches Angebot? Kontaktieren Sie uns. Wir beraten Sie gerne und unverbindlich.</p>"
+    },
+
+    {
+      "type": "range",
+      "id": "text_width",
+      "label": "Textbreite (px)",
+      "min": 600,
+      "max": 1800,
+      "step": 25,
+      "unit": "px",
+      "default": 1400
+    },
+    {
+      "type": "range",
+      "id": "side_padding",
+      "label": "Innenabstand links/rechts (px)",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "center_text",
+      "label": "Text zentrieren",
+      "default": true
+    },
+
+    {
+      "type": "range",
+      "id": "heading_size_px",
+      "label": "Überschrift-Größe Desktop (px)",
+      "min": 18,
+      "max": 96,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile_px",
+      "label": "Überschrift-Größe Mobil (px)",
+      "min": 16,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "default": 30
+    },
+
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0, "max": 120, "step": 4, "unit": "px",
+      "label": "Oberes Padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0, "max": 120, "step": 4, "unit": "px",
+      "label": "Unteres Padding",
+      "default": 52
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rich Text (Variable)"
+    }
+  ]
+}
+{% endschema %}

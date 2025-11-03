@@ -1,0 +1,169 @@
+{%- comment -%}
+  Calendly Inline-Widget Section (Desktop/Mobile-Höhen + Eyebrow)
+{%- endcomment -%}
+
+{%- assign base_url = section.settings.base_url | strip -%}
+{%- if base_url contains '?' -%}{%- assign sep = '&' -%}{%- else -%}{%- assign sep = '?' -%}{%- endif -%}
+
+{%- capture query -%}
+  {{ sep }}hide_gdpr_banner={% if section.settings.hide_gdpr_banner %}1{% else %}0{% endif %}
+  &primary_color={{ section.settings.primary_color | remove: '#' }}
+  &text_color={{ section.settings.text_color | remove: '#' }}
+  &background_color={{ section.settings.bg_color | remove: '#' }}
+  {%- if section.settings.hide_event_details -%}&hide_event_type_details=1{%- endif -%}
+{%- endcapture -%}
+
+{%- style -%}
+/* Abschnitt-Padding */
+#shopify-section-{{ section.id }} {
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+}
+@media (max-width: 749px){
+  #shopify-section-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.6 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.6 | round: 0 }}px;
+  }
+}
+
+/* Container */
+#shopify-section-{{ section.id }} .cal-wrap{
+  {% if section.settings.center_container %} margin-left:auto; margin-right:auto; {% endif %}
+  max-width: {{ section.settings.max_width }}px;
+  font-family: "Poppins", var(--font-body-family, sans-serif);
+  text-align: center;
+}
+@media (max-width: 749px){
+  #shopify-section-{{ section.id }} .cal-wrap{ padding: 0 16px; }
+}
+
+/* Überschrift + Highlight */
+#shopify-section-{{ section.id }} .cal-title{
+  font-family: "Montserrat", var(--font-heading-family, sans-serif);
+  text-align: center;
+  margin-bottom: 6px;
+  font-size: {{ section.settings.heading_size_desktop }}px;
+  line-height: 1.2;
+  color: #121212;
+}
+#shopify-section-{{ section.id }} .cal-title .highlight{ color:#7c4d9a; }
+@media (max-width: 749px){
+  #shopify-section-{{ section.id }} .cal-title{ font-size: {{ section.settings.heading_size_mobile }}px; }
+}
+
+/* Eyebrow (zentriert, transparentes Lila) */
+#shopify-section-{{ section.id }} .cal-eyebrow{
+  display:inline-block;
+  background: rgba(124,77,154,.10);
+  color:#7c4d9a;
+  border:1px solid rgba(124,77,154,.25);
+  padding:6px 14px;
+  border-radius:9999px;
+  font-weight:600;
+  font-size:14px;
+  letter-spacing:.02em;
+  margin:8px auto {{ section.settings.spacing_below_heading }}px auto;
+}
+
+/* Calendly-Host */
+#shopify-section-{{ section.id }} .cal-embed{
+  width:100%;
+  height: {{ section.settings.height_desktop }}px;
+  margin:0 !important;
+  border-radius:0;
+  overflow:hidden;
+  box-shadow:none;
+  background:#ffffff !important;
+  position:relative;
+}
+#shopify-section-{{ section.id }} .cal-embed::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.03), rgba(0,0,0,0.02));
+  z-index:0;
+}
+#shopify-section-{{ section.id }} .cal-embed iframe{
+  position:relative;
+  z-index:1;
+  width:100%;
+  height:100%;
+  display:block;
+  background:#ffffff !important;
+}
+@media (max-width: 749px){
+  #shopify-section-{{ section.id }} .cal-embed{
+    height: {{ section.settings.height_mobile }}px;
+  }
+}
+{%- endstyle -%}
+
+<!-- Performance: Preconnects -->
+<link rel="preconnect" href="https://calendly.com">
+<link rel="dns-prefetch" href="https://calendly.com">
+<link rel="preconnect" href="https://assets.calendly.com" crossorigin>
+<link rel="dns-prefetch" href="https://assets.calendly.com">
+
+<!-- Preload: Script -->
+<link rel="preload" as="script" href="https://assets.calendly.com/assets/external/widget.js" crossorigin>
+
+<div class="cal-wrap">
+  {%- if section.settings.heading != blank -%}
+    <{{ section.settings.heading_tag }} class="cal-title">
+      {{ section.settings.heading | replace: 'vereinbaren', '<span class="highlight">vereinbaren</span>' }}
+    </{{ section.settings.heading_tag }}>
+    {%- if section.settings.show_eyebrow and section.settings.eyebrow_text != blank -%}
+      <div class="cal-eyebrow">{{ section.settings.eyebrow_text }}</div>
+    {%- endif -%}
+  {%- endif -%}
+
+  <div class="calendly-inline-widget cal-embed"
+       data-url="{{ base_url }}{{ query | strip | replace: ' ', '' }}">
+  </div>
+</div>
+
+<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+
+{% schema %}
+{
+  "name": "Calendly – Terminbuchung",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Überschrift (optional)", "default": "Jetzt Termin vereinbaren" },
+    { "type": "select", "id": "heading_tag", "label": "Überschrift-Tag",
+      "options": [
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "h1", "label": "H1" }
+      ],
+      "default": "h2"
+    },
+    { "type": "checkbox", "id": "show_eyebrow", "label": "Eyebrow anzeigen", "default": true },
+    { "type": "text", "id": "eyebrow_text", "label": "Eyebrow-Text", "default": "Kostenloses Erstgespräch" },
+    { "type": "text", "id": "base_url", "label": "Calendly-Link (z. B. terra-robotics/30min)" },
+    { "type": "range", "id": "max_width", "label": "Max. Breite (px)", "min": 600, "max": 1600, "step": 20, "default": 1100 },
+    { "type": "range", "id": "height_desktop", "label": "Widget-Höhe Desktop (px)", "min": 600, "max": 1400, "step": 20, "default": 900 },
+    { "type": "range", "id": "height_mobile", "label": "Widget-Höhe Mobile (px)", "min": 600, "max": 1600, "step": 20, "default": 1100 },
+    { "type": "checkbox", "id": "center_container", "label": "Container zentrieren", "default": true },
+    { "type": "header", "content": "Abschnitt – Abstand" },
+    { "type": "range", "id": "padding_top", "label": "Padding oben (px)", "min": 0, "max": 200, "step": 5, "default": 60 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding unten (px)", "min": 0, "max": 200, "step": 5, "default": 60 },
+    { "type": "header", "content": "Überschrift – Typografie & Abstand" },
+    { "type": "range", "id": "heading_size_desktop", "label": "Schriftgröße Desktop (px)", "min": 16, "max": 80, "step": 1, "default": 32 },
+    { "type": "range", "id": "heading_size_mobile", "label": "Schriftgröße Mobile (px)", "min": 12, "max": 48, "step": 1, "default": 24 },
+    { "type": "range", "id": "spacing_below_heading", "label": "Abstand unter Eyebrow (px)", "min": 0, "max": 100, "step": 2, "default": 24 },
+    { "type": "header", "content": "Farben" },
+    { "type": "color", "id": "primary_color", "label": "Primärfarbe (Buttons/Eyebrow)", "default": "#7c4d9a" },
+    { "type": "color", "id": "text_color", "label": "Textfarbe", "default": "#121212" },
+    { "type": "color", "id": "bg_color", "label": "Hintergrundfarbe", "default": "#ffffff" },
+    { "type": "header", "content": "Sonstiges" },
+    { "type": "checkbox", "id": "hide_gdpr_banner", "label": "Cookie-Banner ausblenden", "default": true },
+    { "type": "checkbox", "id": "hide_event_details", "label": "Event-Details ausblenden", "default": true },
+    { "type": "range", "id": "guard_kill_timeout_ms", "label": "Hartes Timeout (ms)", "min": 0, "max": 9000, "step": 250, "default": 8000 }
+  ],
+  "presets": [
+    { "name": "Calendly – Terminbuchung" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,291 @@
+<div class="custom-image-text-section section-{{ section.id }}"
+     style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;">
+  <div class="image-text-wrapper">
+    <div class="image-text-content">
+      {% if section.settings.image != blank %}
+        <div class="image-side">
+          <img src="{{ section.settings.image | image_url }}" alt="Image" loading="lazy">
+        </div>
+      {% endif %}
+      <div class="text-side">
+        {% if section.settings.heading != blank %}
+          <h2 class="section-heading">
+            {{ section.settings.heading | replace: '[highlight]', '<span class="highlight" style="color: #7c4d9a">' | replace: '[/highlight]', '</span>' }}
+          </h2>
+        {% endif %}
+        {% if section.settings.text != blank %}
+          <div class="section-description">
+            {{ section.settings.text }}
+          </div>
+        {% endif %}
+        {% if section.blocks.size > 0 %}
+          <div class="info-box-grid">
+            {% for block in section.blocks %}
+              <div class="info-box">
+                {% if block.settings.icon != blank %}
+                  <div class="info-box-icon">
+                    <img src="{{ block.settings.icon | image_url }}" alt="Icon" loading="lazy">
+                  </div>
+                {% endif %}
+                <div class="info-box-text">
+                  <h3>{{ block.settings.title }}</h3>
+                  <p>{{ block.settings.description }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.section-{{ section.id }}.custom-image-text-section {
+  padding-top: var(--pt, 64px);
+  padding-bottom: var(--pb, 64px);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  background-color: transparent;
+}
+
+.image-text-wrapper {
+  max-width: 1300px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-sizing: border-box;
+}
+
+.image-text-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: center;
+}
+
+.image-side {
+  flex: 1 1 45%;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.image-side img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  display: block;
+}
+
+.text-side {
+  flex: 1 1 50%;
+}
+
+/* Hauptüberschrift */
+.section-heading {
+  font-size: 40px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  margin-bottom: 1.5rem;
+  color: #121212;
+}
+
+/* Beschreibungstext */
+.section-description {
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  color: #121212;
+  margin-bottom: 2rem;
+}
+
+/* Grid für grüne Boxen */
+.info-box-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.info-box {
+  background-color: #f0fdcb;
+  border-radius: 20px;
+  padding: 1.5rem;
+  width: 200px;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+/* Icon in der Box */
+.info-box-icon img {
+  width: 32px;
+  height: 32px;
+}
+
+/* Titel in der Box */
+.info-box-text h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #121212;
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+}
+
+/* Beschreibung in der Box */
+.info-box-text p {
+  font-size: 14px;
+  color: #121212BF;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+
+/* 🟪 Zusätzlicher Abstand für Textseite ab Tablet */
+@media (min-width: 769px) {
+  .text-side {
+    padding-left: 5rem;
+  }
+}
+
+/* 📱 Mobile */
+@media (max-width: 768px) {
+  .image-text-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .section-heading {
+    font-size: 30px;
+    text-align: center;
+  }
+
+  .section-description {
+    text-align: center;
+  }
+
+  .text-side {
+    margin-top: 1rem;
+  }
+
+  .info-box-grid {
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch; /* NEU: sorgt dafür, dass alle Boxen gleich hoch sind */
+  }
+
+  .info-box {
+    width: calc(50% - 0.5rem);
+    max-width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* NEU: beginnt immer oben */
+    align-items: flex-start;
+  }
+  .info-box-text {
+    flex-grow: 1; /* NEU: sorgt für gleiche Höhe der inneren Boxen */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Titel bleibt oben */
+  }
+}
+
+/* 🧩 Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .section-heading {
+    font-size: 34px;
+  }
+
+  .info-box-grid {
+    justify-content: center;
+  }
+
+  .info-box {
+    width: calc(50% - 0.5rem);
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* 💻 Desktop */
+@media (min-width: 1025px) {
+  .section-heading {
+    font-size: 40px;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Image + Text + Info-Boxen",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Linkes Bild"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Überschrift",
+      "default": "Wir sind dein Experte [highlight] <br> aus Löhne[/highlight]"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Beschreibung"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding oben",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "default": 64,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding unten",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "default": 64,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "info_box",
+      "name": "Grüne Box",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Beschreibung"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image + Text + Info-Boxen",
+      "category": "Abschnitte"
+    }
+  ]
+}
+{% endschema %}
