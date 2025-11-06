@@ -133,6 +133,8 @@
         </span>
       </button>
       
+      {% assign scope = "#shopify-section-" | append: section.id %}
+
       <div class="slider-counter slider-counter--{{ section.settings.slider_visual }}{% if section.settings.slider_visual == 'counter' or section.settings.slider_visual == 'numbers' %} caption{% endif %}">
         {%- if section.settings.slider_visual == 'counter' -%}
           <span class="slider-counter--current">1</span>
@@ -497,9 +499,9 @@
     opacity: 0.8;
   }
 
-  .slider-button--prev,
-  .slider-button--next {
-    display: none !important;
+  {{ scope }} .slider-button--prev,
+  {{ scope }} .slider-button--next {
+    display: none;
   }
 
   /* Zusätzlicher Clean-Up */
